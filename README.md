@@ -19,23 +19,9 @@ A modern, automated Personal Financial Statement (PFS) generation platform for 1
 
 See [SETUP.md](./SETUP.md) for complete setup instructions.
 
-## Project info
-
-**Original Lovable URL**: https://lovable.dev/projects/7bec6796-c74a-4f19-827d-cc5b5720fba5
-
 ## How can I edit this code?
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/7bec6796-c74a-4f19-827d-cc5b5720fba5) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+You can edit this code using your preferred IDE or directly in GitHub.
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
@@ -81,12 +67,14 @@ This project is built with:
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/7bec6796-c74a-4f19-827d-cc5b5720fba5) and click on Share -> Publish.
+This project can be deployed to Vercel, Netlify, or any static hosting service that supports Vite applications.
 
-## Can I connect a custom domain to my Lovable project?
+### Deploy to Vercel
 
-Yes, you can!
+1. Push your code to GitHub
+2. Import your repository in [Vercel](https://vercel.com)
+3. Vercel will automatically detect it's a Vite project
+4. Add your environment variables (`VITE_AIRTABLE_API_KEY` and `VITE_AIRTABLE_BASE_ID`)
+5. Deploy!
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+The `vercel.json` configuration file is already included in this repository.
