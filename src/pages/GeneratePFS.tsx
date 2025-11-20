@@ -35,6 +35,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { generatePFSPDF, downloadPDF, type PFSFormData } from "@/lib/pdf/generate-pfs-pdf";
 
 const formatCurrencyDisplay = (amount: number) => {
   return formatCurrency(amount, {
@@ -67,6 +68,8 @@ export default function GeneratePFS() {
   const { data, isLoading, error } = usePFSData();
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [pdfTemplate, setPdfTemplate] = useState<Uint8Array | null>(null);
+  const [isLoadingTemplate, setIsLoadingTemplate] = useState(false);
 
   // Property selection state
   const [selectedProperties, setSelectedProperties] = useState<Set<string>>(
@@ -546,7 +549,7 @@ export default function GeneratePFS() {
 
     if (installmentObligations.length > 0) {
       const newScheduleI = installmentObligations
-        .slice(0, 5)
+        .slice(0, 8)
         .map((liability) => ({
           payableTo: liability.payableTo || "",
           collateral: liability.collateral || "",
@@ -556,7 +559,7 @@ export default function GeneratePFS() {
         }));
 
       // Fill remaining slots with empty entries
-      while (newScheduleI.length < 5) {
+      while (newScheduleI.length < 8) {
         newScheduleI.push({
           payableTo: "",
           collateral: "",
@@ -735,6 +738,27 @@ export default function GeneratePFS() {
       finalDueDate: "",
       monthlyPayment: 0,
     },
+    {
+      payableTo: "",
+      collateral: "",
+      balance: 0,
+      finalDueDate: "",
+      monthlyPayment: 0,
+    },
+    {
+      payableTo: "",
+      collateral: "",
+      balance: 0,
+      finalDueDate: "",
+      monthlyPayment: 0,
+    },
+    {
+      payableTo: "",
+      collateral: "",
+      balance: 0,
+      finalDueDate: "",
+      monthlyPayment: 0,
+    },
   ]);
 
   // Filter properties based on search
@@ -766,17 +790,159 @@ export default function GeneratePFS() {
     setSelectedProperties(newSelected);
   };
 
-  const handleGenerate = async () => {
-    setIsGenerating(true);
-    // TODO: Implement PDF generation
-    setTimeout(() => {
-      setIsGenerating(false);
+  // Load PDF template
+  const handleTemplateUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsLoadingTemplate(true);
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+      setPdfTemplate(uint8Array);
       toast({
-        title: "PFS Generation",
-        description:
-          "PDF generation will be implemented soon. Configuration saved.",
+        title: "Template Loaded",
+        description: "PDF template has been loaded successfully.",
       });
-    }, 1000);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load PDF template.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingTemplate(false);
+    }
+  };
+
+  const handleGenerate = async () => {
+    if (!pdfTemplate) {
+      toast({
+        title: "Template Required",
+        description: "Please upload a PDF template first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      // Collect all form data
+      const selectedPropertiesList = data?.properties.filter((p) =>
+        selectedProperties.has(p.id)
+      ) || [];
+
+      // Calculate summaries
+      const totalAssets = 
+        (cashOnHand || 0) +
+        (cashOtherInstitutions || 0) +
+        (buildingMaterialInventory || 0) +
+        (lifeInsuranceCashValue || 0) +
+        (retirementAccounts || 0) +
+        (automobilesTrucks || 0) +
+        (machineryTools || 0) +
+        (otherAssetsValue || 0) +
+        scheduleA.reduce((sum, item) => sum + (item.amount || 0), 0) +
+        scheduleB.reduce((sum, item) => sum + (item.amount || 0), 0) +
+        scheduleC.reduce((sum, item) => sum + (item.totalValue || 0), 0) +
+        scheduleD.reduce((sum, item) => sum + (item.totalValue || 0), 0) +
+        scheduleE.reduce((sum, item) => sum + (item.presentBalance || 0), 0) +
+        selectedPropertiesList.reduce((sum, prop) => {
+          return sum + ((prop.currentValue || 0) * ((prop.ownershipPercentage || 0) / 100));
+        }, 0);
+
+      const totalLiabilities =
+        (notesPayableRelatives || 0) +
+        (accruedInterest || 0) +
+        (accruedSalaryWages || 0) +
+        (accruedTaxesOther || 0) +
+        (incomeTaxPayable || 0) +
+        (chattelMortgage || 0) +
+        (otherLiabilitiesValue || 0) +
+        scheduleG.reduce((sum, item) => sum + (item.amount || 0), 0) +
+        scheduleH.reduce((sum, item) => sum + (item.amount || 0), 0) +
+        scheduleI.reduce((sum, item) => sum + (item.balance || 0), 0) +
+        selectedPropertiesList.reduce((sum, prop) => {
+          const mortgage = data?.mortgages.find((m) => m.propertyId === prop.id);
+          return sum + (mortgage?.principalBalance || 0);
+        }, 0);
+
+      const formData: PFSFormData = {
+        borrowerName,
+        cashOnHand,
+        cashOtherInstitutions,
+        buildingMaterialInventory,
+        lifeInsuranceCashValue,
+        retirementAccounts,
+        automobilesTrucks,
+        machineryTools,
+        otherAssets,
+        otherAssetsValue,
+        notesPayableRelatives,
+        accruedInterest,
+        accruedSalaryWages,
+        accruedTaxesOther,
+        incomeTaxPayable,
+        chattelMortgage,
+        otherLiabilities,
+        otherLiabilitiesValue,
+        salaryWages,
+        proprietorshipDraws,
+        commissionsBonus,
+        dividendsInterest,
+        rentals,
+        otherIncome,
+        guaranteedLoans,
+        suretyBonds,
+        contingentOther,
+        contingentOtherValue,
+        lifeInsuranceFaceValue,
+        lifeInsuranceBorrowed,
+        scheduleA,
+        scheduleB,
+        scheduleC,
+        scheduleD,
+        scheduleE,
+        scheduleG,
+        scheduleH,
+        scheduleI,
+        selectedProperties: selectedPropertiesList.map((prop) => ({
+          id: prop.id,
+          address: prop.address,
+          currentValue: prop.currentValue,
+          ownershipPercentage: prop.ownershipPercentage,
+          purchasePrice: prop.purchasePrice,
+          propertyType: "Residential",
+          acquisitionDate: undefined,
+        })),
+        mortgages: data?.mortgages || [],
+        summaries: {
+          totalAssets,
+          totalLiabilities,
+        },
+      };
+
+      // Generate PDF
+      const pdfBytes = await generatePFSPDF(pdfTemplate, formData);
+      
+      // Download PDF
+      const filename = `PFS-${borrowerName || 'Statement'}-${new Date().toISOString().split('T')[0]}.pdf`;
+      downloadPDF(pdfBytes, filename);
+
+      toast({
+        title: "PDF Generated",
+        description: "Your Personal Financial Statement has been generated and downloaded.",
+      });
+    } catch (error) {
+      console.error("PDF generation error:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to generate PDF",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   if (isLoading) {
@@ -841,25 +1007,50 @@ export default function GeneratePFS() {
               Configure and generate your Personal Financial Statement
             </p>
           </div>
-          <Button
-            onClick={handleGenerate}
-            disabled={isGenerating}
-            className="bg-primary text-primary-foreground hover:bg-primary/90"
-            size="lg"
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <FileText className="h-4 w-4 mr-2" />
-                Generate PDF
-              </>
-            )}
-          </Button>
+          <div className="flex gap-2">
+            <div className="space-y-2">
+              <Label htmlFor="template-upload" className="text-sm">
+                {pdfTemplate ? "Template Loaded ✓" : "Upload PDF Template"}
+              </Label>
+              <Input
+                id="template-upload"
+                type="file"
+                accept=".pdf"
+                onChange={handleTemplateUpload}
+                disabled={isLoadingTemplate || isGenerating}
+                className="cursor-pointer"
+              />
+            </div>
+            <Button
+              onClick={handleGenerate}
+              disabled={isGenerating || !pdfTemplate || isLoadingTemplate}
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              size="lg"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Generate PDF
+                </>
+              )}
+            </Button>
+          </div>
         </div>
+
+        {!pdfTemplate && (
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>PDF Template Required</AlertTitle>
+            <AlertDescription>
+              Please upload your PFS PDF template before generating the statement.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Tabs defaultValue="properties" className="space-y-4">
           <TabsList className="grid w-full grid-cols-5">
