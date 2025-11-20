@@ -36,6 +36,20 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { generatePFSPDF, downloadPDF, type PFSFormData } from "@/lib/pdf/generate-pfs-pdf";
+import {
+  getAvailableTemplates,
+  loadTemplate,
+  saveTemplate,
+  deleteTemplate,
+  type PDFTemplate,
+} from "@/lib/pdf/template-manager";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const formatCurrencyDisplay = (amount: number) => {
   return formatCurrency(amount, {
@@ -70,6 +84,9 @@ export default function GeneratePFS() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [pdfTemplate, setPdfTemplate] = useState<Uint8Array | null>(null);
   const [isLoadingTemplate, setIsLoadingTemplate] = useState(false);
+  const [availableTemplates, setAvailableTemplates] = useState<PDFTemplate[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
 
   // Property selection state
   const [selectedProperties, setSelectedProperties] = useState<Set<string>>(
@@ -790,20 +807,25 @@ export default function GeneratePFS() {
     setSelectedProperties(newSelected);
   };
 
-  // Load PDF template
-  const handleTemplateUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  // Handle template selection from dropdown
+  const handleTemplateSelect = async (templateId: string) => {
     setIsLoadingTemplate(true);
     try {
-      const arrayBuffer = await file.arrayBuffer();
-      const uint8Array = new Uint8Array(arrayBuffer);
-      setPdfTemplate(uint8Array);
-      toast({
-        title: "Template Loaded",
-        description: "PDF template has been loaded successfully.",
-      });
+      const templateBytes = await loadTemplate(templateId);
+      if (templateBytes) {
+        setPdfTemplate(templateBytes);
+        setSelectedTemplateId(templateId);
+        toast({
+          title: "Template Loaded",
+          description: "PDF template has been loaded successfully.",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to load selected template.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -812,6 +834,79 @@ export default function GeneratePFS() {
       });
     } finally {
       setIsLoadingTemplate(false);
+    }
+  };
+
+  // Load available templates on mount
+  useEffect(() => {
+    const loadTemplates = async () => {
+      setIsLoadingTemplates(true);
+      try {
+        const templates = await getAvailableTemplates();
+        // Only show pre-loaded templates (CCCU.pdf)
+        const preloadedOnly = templates.filter(t => t.isPreloaded);
+        setAvailableTemplates(preloadedOnly);
+        // Auto-select default template if available
+        if (preloadedOnly.length > 0 && !selectedTemplateId) {
+          const defaultTemplate = preloadedOnly.find(t => t.id === 'default') || preloadedOnly[0];
+          setSelectedTemplateId(defaultTemplate.id);
+          await handleTemplateSelect(defaultTemplate.id);
+        }
+      } catch (error) {
+        console.error('Failed to load templates:', error);
+      } finally {
+        setIsLoadingTemplates(false);
+      }
+    };
+    loadTemplates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Handle new template upload
+  const handleTemplateUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      toast({
+        title: "Invalid File",
+        description: "Please upload a PDF file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoadingTemplate(true);
+    try {
+      // Save template
+      const template = await saveTemplate(file);
+      
+      // Reload templates list
+      const templates = await getAvailableTemplates();
+      setAvailableTemplates(templates);
+      
+      // Select the newly uploaded template
+      setSelectedTemplateId(template.id);
+      
+      // Load the template
+      const templateBytes = await loadTemplate(template.id);
+      if (templateBytes) {
+        setPdfTemplate(templateBytes);
+        toast({
+          title: "Template Saved",
+          description: `${template.name} has been saved and loaded.`,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save PDF template.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingTemplate(false);
+      // Reset file input
+      e.target.value = '';
     }
   };
 
@@ -1007,10 +1102,34 @@ export default function GeneratePFS() {
               Configure and generate your Personal Financial Statement
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-end">
+            <div className="space-y-2 flex-1 max-w-xs">
+              <Label htmlFor="template-select" className="text-sm">
+                Select Template
+              </Label>
+              <Select
+                value={selectedTemplateId || ""}
+                onValueChange={handleTemplateSelect}
+                disabled={isLoadingTemplates || isLoadingTemplate || isGenerating}
+              >
+                <SelectTrigger id="template-select">
+                  <SelectValue placeholder="Choose a template..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableTemplates.map((template) => (
+                    <SelectItem key={template.id} value={template.id}>
+                      {template.name}
+                      {template.isPreloaded && (
+                        <span className="text-xs text-muted-foreground ml-2">(Default)</span>
+                      )}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="template-upload" className="text-sm">
-                {pdfTemplate ? "Template Loaded ✓" : "Upload PDF Template"}
+                Upload New Template
               </Label>
               <Input
                 id="template-upload"
