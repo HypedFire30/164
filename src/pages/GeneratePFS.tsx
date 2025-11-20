@@ -39,8 +39,6 @@ import { generatePFSPDF, downloadPDF, type PFSFormData } from "@/lib/pdf/generat
 import {
   getAvailableTemplates,
   loadTemplate,
-  saveTemplate,
-  deleteTemplate,
   type PDFTemplate,
 } from "@/lib/pdf/template-manager";
 import {
@@ -862,59 +860,12 @@ export default function GeneratePFS() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Handle new template upload
-  const handleTemplateUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.type !== 'application/pdf') {
-      toast({
-        title: "Invalid File",
-        description: "Please upload a PDF file.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoadingTemplate(true);
-    try {
-      // Save template
-      const template = await saveTemplate(file);
-      
-      // Reload templates list
-      const templates = await getAvailableTemplates();
-      setAvailableTemplates(templates);
-      
-      // Select the newly uploaded template
-      setSelectedTemplateId(template.id);
-      
-      // Load the template
-      const templateBytes = await loadTemplate(template.id);
-      if (templateBytes) {
-        setPdfTemplate(templateBytes);
-        toast({
-          title: "Template Saved",
-          description: `${template.name} has been saved and loaded.`,
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save PDF template.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoadingTemplate(false);
-      // Reset file input
-      e.target.value = '';
-    }
-  };
 
   const handleGenerate = async () => {
     if (!pdfTemplate) {
       toast({
         title: "Template Required",
-        description: "Please upload a PDF template first.",
+        description: "Please select a PDF template first.",
         variant: "destructive",
       });
       return;
@@ -1119,26 +1070,10 @@ export default function GeneratePFS() {
                   {availableTemplates.map((template) => (
                     <SelectItem key={template.id} value={template.id}>
                       {template.name}
-                      {template.isPreloaded && (
-                        <span className="text-xs text-muted-foreground ml-2">(Default)</span>
-                      )}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="template-upload" className="text-sm">
-                Upload New Template
-              </Label>
-              <Input
-                id="template-upload"
-                type="file"
-                accept=".pdf"
-                onChange={handleTemplateUpload}
-                disabled={isLoadingTemplate || isGenerating}
-                className="cursor-pointer"
-              />
             </div>
             <Button
               onClick={handleGenerate}
@@ -1166,7 +1101,7 @@ export default function GeneratePFS() {
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>PDF Template Required</AlertTitle>
             <AlertDescription>
-              Please upload your PFS PDF template before generating the statement.
+              Please select a PDF template from the dropdown above before generating the statement.
             </AlertDescription>
           </Alert>
         )}
