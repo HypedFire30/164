@@ -26,7 +26,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   // PAGE 1 - TOP SECTION
   // ============================================================================
   {
-    pdfFieldName: 'TextField',
+    pdfFieldName: 'Text Field',
     dataSource: 'direct',
     dataPath: 'borrowerName',
     fieldType: 'text',
@@ -36,19 +36,19 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   // ASSETS SECTION
   // ============================================================================
   {
-    pdfFieldName: 'TextField_1',
+    pdfFieldName: 'Text Field_1',
     dataSource: 'direct',
     dataPath: 'cashOnHand',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_3',
+    pdfFieldName: 'Text Field_3',
     dataSource: 'direct',
     dataPath: 'cashOtherInstitutions',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_5',
+    pdfFieldName: 'Text Field_5',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule A total
@@ -57,7 +57,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_7',
+    pdfFieldName: 'Text Field_7',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule B total
@@ -66,13 +66,13 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_9',
+    pdfFieldName: 'Text Field_9',
     dataSource: 'direct',
     dataPath: 'buildingMaterialInventory',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_11',
+    pdfFieldName: 'Text Field_11',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule C total
@@ -81,20 +81,20 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_13',
+    pdfFieldName: 'Text Field_13',
     dataSource: 'direct',
     dataPath: 'lifeInsuranceCashValue',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_15',
+    pdfFieldName: 'Text Field_15',
     dataSource: 'direct',
     dataPath: 'retirementAccounts',
     fieldType: 'currency',
   },
   // TextField_17 and TextField_18 - LEAVE BLANK (not used)
   {
-    pdfFieldName: 'TextField_20',
+    pdfFieldName: 'Text Field_20',
     dataSource: 'calculated',
     calculate: (data) => {
       // Total Current Assets
@@ -111,7 +111,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_22',
+    pdfFieldName: 'Text Field_22',
     dataSource: 'calculated',
     calculate: (data) => {
       // Real Estate - Schedule F total (current value)
@@ -122,19 +122,19 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_24',
+    pdfFieldName: 'Text Field_24',
     dataSource: 'direct',
     dataPath: 'automobilesTrucks',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_26',
+    pdfFieldName: 'Text Field_26',
     dataSource: 'direct',
     dataPath: 'machineryTools',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_27',
+    pdfFieldName: 'Text Field_27',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule E total (present balance)
@@ -143,7 +143,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_30',
+    pdfFieldName: 'Text Field_30',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule D total
@@ -152,25 +152,25 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_33',
+    pdfFieldName: 'Text Field_33',
     dataSource: 'direct',
     dataPath: 'otherAssetsValue',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_36',
+    pdfFieldName: 'Text Field_36',
     dataSource: 'direct',
     dataPath: 'otherAssets',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_37',
+    pdfFieldName: 'Text Field_37',
     dataSource: 'direct',
     dataPath: 'otherAssetsValue',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_40',
+    pdfFieldName: 'Text Field_40',
     dataSource: 'calculated',
     calculate: (data) => {
       // Total Assets - use summaries if available
@@ -183,7 +183,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   // LIABILITIES SECTION
   // ============================================================================
   {
-    pdfFieldName: 'TextField_2',
+    pdfFieldName: 'Text Field_2',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule G total
@@ -192,13 +192,13 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_4',
+    pdfFieldName: 'Text Field_4',
     dataSource: 'direct',
     dataPath: 'notesPayableRelatives',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_6',
+    pdfFieldName: 'Text Field_6',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule H total
@@ -207,7 +207,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_8',
+    pdfFieldName: 'Text Field_8',
     dataSource: 'calculated',
     calculate: (data) => {
       // Accrued Current Liabilities total
@@ -220,31 +220,31 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_10',
+    pdfFieldName: 'Text Field_10',
     dataSource: 'direct',
     dataPath: 'accruedInterest',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_12',
+    pdfFieldName: 'Text Field_12',
     dataSource: 'direct',
     dataPath: 'accruedSalaryWages',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_14',
+    pdfFieldName: 'Text Field_14',
     dataSource: 'direct',
     dataPath: 'accruedTaxesOther',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_16',
+    pdfFieldName: 'Text Field_16',
     dataSource: 'direct',
     dataPath: 'incomeTaxPayable',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_19',
+    pdfFieldName: 'Text Field_19',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule I total
@@ -253,7 +253,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_21',
+    pdfFieldName: 'Text Field_21',
     dataSource: 'calculated',
     calculate: (data) => {
       // Total Current Liabilities
@@ -268,7 +268,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_23',
+    pdfFieldName: 'Text Field_23',
     dataSource: 'calculated',
     calculate: (data) => {
       // Real Estate Mortgages - Schedule F total (balance)
@@ -280,61 +280,61 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_25',
+    pdfFieldName: 'Text Field_25',
     dataSource: 'direct',
     dataPath: 'chattelMortgage',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_28',
+    pdfFieldName: 'Text Field_28',
     dataSource: 'direct',
     dataPath: 'otherLiabilities',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_29',
+    pdfFieldName: 'Text Field_29',
     dataSource: 'direct',
     dataPath: 'otherLiabilitiesValue',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_31',
+    pdfFieldName: 'Text Field_31',
     dataSource: 'direct',
     dataPath: 'otherLiabilities',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_32',
+    pdfFieldName: 'Text Field_32',
     dataSource: 'direct',
     dataPath: 'otherLiabilitiesValue',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_34',
+    pdfFieldName: 'Text Field_34',
     dataSource: 'direct',
     dataPath: 'otherLiabilities',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_35',
+    pdfFieldName: 'Text Field_35',
     dataSource: 'direct',
     dataPath: 'otherLiabilitiesValue',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_38',
+    pdfFieldName: 'Text Field_38',
     dataSource: 'direct',
     dataPath: 'otherLiabilities',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_39',
+    pdfFieldName: 'Text Field_39',
     dataSource: 'direct',
     dataPath: 'otherLiabilitiesValue',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_41',
+    pdfFieldName: 'Text Field_41',
     dataSource: 'calculated',
     calculate: (data) => {
       // Total Liabilities - use summaries if available
@@ -347,7 +347,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   // INCOME SECTION
   // ============================================================================
   {
-    pdfFieldName: 'TextField_42',
+    pdfFieldName: 'Text Field_42',
     dataSource: 'calculated',
     calculate: (data) => {
       // Income for Year to Date (total)
@@ -362,55 +362,55 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_44',
+    pdfFieldName: 'Text Field_44',
     dataSource: 'direct',
     dataPath: 'salaryWages',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_46',
+    pdfFieldName: 'Text Field_46',
     dataSource: 'direct',
     dataPath: 'proprietorshipDraws',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_48',
+    pdfFieldName: 'Text Field_48',
     dataSource: 'direct',
     dataPath: 'commissionsBonus',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_51',
+    pdfFieldName: 'Text Field_51',
     dataSource: 'direct',
     dataPath: 'dividendsInterest',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_54',
+    pdfFieldName: 'Text Field_54',
     dataSource: 'direct',
     dataPath: 'rentals',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_56',
+    pdfFieldName: 'Text Field_56',
     dataSource: 'direct',
     dataPath: 'otherIncome',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_58',
+    pdfFieldName: 'Text Field_58',
     dataSource: 'direct',
     dataPath: 'otherIncome',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_59',
+    pdfFieldName: 'Text Field_59',
     dataSource: 'direct',
     dataPath: 'otherIncome',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_61',
+    pdfFieldName: 'Text Field_61',
     dataSource: 'calculated',
     calculate: (data) => {
       // Total Net Income
@@ -429,7 +429,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   // CONTINGENT LIABILITIES & INSURANCE
   // ============================================================================
   {
-    pdfFieldName: 'TextField_43',
+    pdfFieldName: 'Text Field_43',
     dataSource: 'calculated',
     calculate: (data) => {
       // Contingent Liabilities total
@@ -441,55 +441,55 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_45',
+    pdfFieldName: 'Text Field_45',
     dataSource: 'direct',
     dataPath: 'guaranteedLoans',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_47',
+    pdfFieldName: 'Text Field_47',
     dataSource: 'direct',
     dataPath: 'suretyBonds',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_49',
+    pdfFieldName: 'Text Field_49',
     dataSource: 'direct',
     dataPath: 'contingentOther',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_50',
+    pdfFieldName: 'Text Field_50',
     dataSource: 'direct',
     dataPath: 'contingentOtherValue',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_52',
+    pdfFieldName: 'Text Field_52',
     dataSource: 'direct',
     dataPath: 'insuranceDescription',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_53',
+    pdfFieldName: 'Text Field_53',
     dataSource: 'direct',
     dataPath: 'insuranceAmount',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_55',
+    pdfFieldName: 'Text Field_55',
     dataSource: 'direct',
     dataPath: 'lifeInsuranceFaceValue',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_57',
+    pdfFieldName: 'Text Field_57',
     dataSource: 'direct',
     dataPath: 'lifeInsuranceCashValue',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_60',
+    pdfFieldName: 'Text Field_60',
     dataSource: 'direct',
     dataPath: 'lifeInsuranceBorrowed',
     fieldType: 'currency',
@@ -499,7 +499,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   // SCHEDULE A - Accounts Receivable (3 rows)
   // ============================================================================
   {
-    pdfFieldName: 'TextField_62',
+    pdfFieldName: 'Text Field_62',
     dataSource: 'schedule',
     scheduleType: 'A',
     scheduleIndex: 0,
@@ -507,7 +507,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_63',
+    pdfFieldName: 'Text Field_63',
     dataSource: 'schedule',
     scheduleType: 'A',
     scheduleIndex: 0,
@@ -515,7 +515,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_64',
+    pdfFieldName: 'Text Field_64',
     dataSource: 'schedule',
     scheduleType: 'A',
     scheduleIndex: 0,
@@ -523,7 +523,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_68',
+    pdfFieldName: 'Text Field_68',
     dataSource: 'schedule',
     scheduleType: 'A',
     scheduleIndex: 1,
@@ -531,7 +531,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_69',
+    pdfFieldName: 'Text Field_69',
     dataSource: 'schedule',
     scheduleType: 'A',
     scheduleIndex: 1,
@@ -539,7 +539,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_70',
+    pdfFieldName: 'Text Field_70',
     dataSource: 'schedule',
     scheduleType: 'A',
     scheduleIndex: 1,
@@ -547,7 +547,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_74',
+    pdfFieldName: 'Text Field_74',
     dataSource: 'schedule',
     scheduleType: 'A',
     scheduleIndex: 2,
@@ -555,7 +555,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_75',
+    pdfFieldName: 'Text Field_75',
     dataSource: 'schedule',
     scheduleType: 'A',
     scheduleIndex: 2,
@@ -563,7 +563,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_76',
+    pdfFieldName: 'Text Field_76',
     dataSource: 'schedule',
     scheduleType: 'A',
     scheduleIndex: 2,
@@ -571,7 +571,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_80',
+    pdfFieldName: 'Text Field_80',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule A total
@@ -584,7 +584,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   // SCHEDULE B - Notes Receivable (3 rows)
   // ============================================================================
   {
-    pdfFieldName: 'TextField_65',
+    pdfFieldName: 'Text Field_65',
     dataSource: 'schedule',
     scheduleType: 'B',
     scheduleIndex: 0,
@@ -592,7 +592,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_66',
+    pdfFieldName: 'Text Field_66',
     dataSource: 'schedule',
     scheduleType: 'B',
     scheduleIndex: 0,
@@ -600,7 +600,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_67',
+    pdfFieldName: 'Text Field_67',
     dataSource: 'schedule',
     scheduleType: 'B',
     scheduleIndex: 0,
@@ -608,7 +608,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_71',
+    pdfFieldName: 'Text Field_71',
     dataSource: 'schedule',
     scheduleType: 'B',
     scheduleIndex: 1,
@@ -616,7 +616,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_72',
+    pdfFieldName: 'Text Field_72',
     dataSource: 'schedule',
     scheduleType: 'B',
     scheduleIndex: 1,
@@ -624,7 +624,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_73',
+    pdfFieldName: 'Text Field_73',
     dataSource: 'schedule',
     scheduleType: 'B',
     scheduleIndex: 1,
@@ -632,7 +632,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_77',
+    pdfFieldName: 'Text Field_77',
     dataSource: 'schedule',
     scheduleType: 'B',
     scheduleIndex: 2,
@@ -640,7 +640,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_78',
+    pdfFieldName: 'Text Field_78',
     dataSource: 'schedule',
     scheduleType: 'B',
     scheduleIndex: 2,
@@ -648,7 +648,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_79',
+    pdfFieldName: 'Text Field_79',
     dataSource: 'schedule',
     scheduleType: 'B',
     scheduleIndex: 2,
@@ -656,7 +656,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_81',
+    pdfFieldName: 'Text Field_81',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule B total
@@ -669,7 +669,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   // SCHEDULE C - Listed Stocks and Bonds (3 rows)
   // ============================================================================
   {
-    pdfFieldName: 'TextField_82',
+    pdfFieldName: 'Text Field_82',
     dataSource: 'schedule',
     scheduleType: 'C',
     scheduleIndex: 0,
@@ -677,7 +677,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_83',
+    pdfFieldName: 'Text Field_83',
     dataSource: 'schedule',
     scheduleType: 'C',
     scheduleIndex: 0,
@@ -685,7 +685,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_84',
+    pdfFieldName: 'Text Field_84',
     dataSource: 'schedule',
     scheduleType: 'C',
     scheduleIndex: 0,
@@ -693,7 +693,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'number',
   },
   {
-    pdfFieldName: 'TextField_85',
+    pdfFieldName: 'Text Field_85',
     dataSource: 'schedule',
     scheduleType: 'C',
     scheduleIndex: 0,
@@ -701,7 +701,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_86',
+    pdfFieldName: 'Text Field_86',
     dataSource: 'schedule',
     scheduleType: 'C',
     scheduleIndex: 0,
@@ -709,7 +709,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_87',
+    pdfFieldName: 'Text Field_87',
     dataSource: 'schedule',
     scheduleType: 'C',
     scheduleIndex: 1,
@@ -717,7 +717,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_88',
+    pdfFieldName: 'Text Field_88',
     dataSource: 'schedule',
     scheduleType: 'C',
     scheduleIndex: 1,
@@ -725,7 +725,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_89',
+    pdfFieldName: 'Text Field_89',
     dataSource: 'schedule',
     scheduleType: 'C',
     scheduleIndex: 1,
@@ -733,7 +733,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'number',
   },
   {
-    pdfFieldName: 'TextField_90',
+    pdfFieldName: 'Text Field_90',
     dataSource: 'schedule',
     scheduleType: 'C',
     scheduleIndex: 1,
@@ -741,7 +741,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_91',
+    pdfFieldName: 'Text Field_91',
     dataSource: 'schedule',
     scheduleType: 'C',
     scheduleIndex: 1,
@@ -749,7 +749,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_92',
+    pdfFieldName: 'Text Field_92',
     dataSource: 'schedule',
     scheduleType: 'C',
     scheduleIndex: 2,
@@ -757,7 +757,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_93',
+    pdfFieldName: 'Text Field_93',
     dataSource: 'schedule',
     scheduleType: 'C',
     scheduleIndex: 2,
@@ -765,7 +765,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_94',
+    pdfFieldName: 'Text Field_94',
     dataSource: 'schedule',
     scheduleType: 'C',
     scheduleIndex: 2,
@@ -773,7 +773,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'number',
   },
   {
-    pdfFieldName: 'TextField_95',
+    pdfFieldName: 'Text Field_95',
     dataSource: 'schedule',
     scheduleType: 'C',
     scheduleIndex: 2,
@@ -781,7 +781,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_96',
+    pdfFieldName: 'Text Field_96',
     dataSource: 'schedule',
     scheduleType: 'C',
     scheduleIndex: 2,
@@ -789,7 +789,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_97',
+    pdfFieldName: 'Text Field_97',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule C total
@@ -802,7 +802,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   // SCHEDULE D - Unlisted Stocks and Bonds (3 rows)
   // ============================================================================
   {
-    pdfFieldName: 'TextField_98',
+    pdfFieldName: 'Text Field_98',
     dataSource: 'schedule',
     scheduleType: 'D',
     scheduleIndex: 0,
@@ -810,7 +810,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_99',
+    pdfFieldName: 'Text Field_99',
     dataSource: 'schedule',
     scheduleType: 'D',
     scheduleIndex: 0,
@@ -818,7 +818,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'number',
   },
   {
-    pdfFieldName: 'TextField_100',
+    pdfFieldName: 'Text Field_100',
     dataSource: 'schedule',
     scheduleType: 'D',
     scheduleIndex: 0,
@@ -826,7 +826,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_101',
+    pdfFieldName: 'Text Field_101',
     dataSource: 'schedule',
     scheduleType: 'D',
     scheduleIndex: 0,
@@ -834,7 +834,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_102',
+    pdfFieldName: 'Text Field_102',
     dataSource: 'schedule',
     scheduleType: 'D',
     scheduleIndex: 1,
@@ -842,7 +842,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_103',
+    pdfFieldName: 'Text Field_103',
     dataSource: 'schedule',
     scheduleType: 'D',
     scheduleIndex: 1,
@@ -850,7 +850,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'number',
   },
   {
-    pdfFieldName: 'TextField_104',
+    pdfFieldName: 'Text Field_104',
     dataSource: 'schedule',
     scheduleType: 'D',
     scheduleIndex: 1,
@@ -858,7 +858,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_105',
+    pdfFieldName: 'Text Field_105',
     dataSource: 'schedule',
     scheduleType: 'D',
     scheduleIndex: 1,
@@ -866,7 +866,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_106',
+    pdfFieldName: 'Text Field_106',
     dataSource: 'schedule',
     scheduleType: 'D',
     scheduleIndex: 2,
@@ -874,7 +874,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_107',
+    pdfFieldName: 'Text Field_107',
     dataSource: 'schedule',
     scheduleType: 'D',
     scheduleIndex: 2,
@@ -882,7 +882,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'number',
   },
   {
-    pdfFieldName: 'TextField_108',
+    pdfFieldName: 'Text Field_108',
     dataSource: 'schedule',
     scheduleType: 'D',
     scheduleIndex: 2,
@@ -890,7 +890,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_109',
+    pdfFieldName: 'Text Field_109',
     dataSource: 'schedule',
     scheduleType: 'D',
     scheduleIndex: 2,
@@ -898,7 +898,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_110',
+    pdfFieldName: 'Text Field_110',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule D total
@@ -911,7 +911,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   // PAGE 2 - SCHEDULE E - Contracts and Mortgages Receivable (3 rows)
   // ============================================================================
   {
-    pdfFieldName: 'TextField_111',
+    pdfFieldName: 'Text Field_111',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 0,
@@ -919,7 +919,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_112',
+    pdfFieldName: 'Text Field_112',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 0,
@@ -927,7 +927,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_113',
+    pdfFieldName: 'Text Field_113',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 0,
@@ -935,7 +935,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_114',
+    pdfFieldName: 'Text Field_114',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 0,
@@ -943,7 +943,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_115',
+    pdfFieldName: 'Text Field_115',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 0,
@@ -951,7 +951,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_116',
+    pdfFieldName: 'Text Field_116',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 0,
@@ -959,7 +959,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_117',
+    pdfFieldName: 'Text Field_117',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 0,
@@ -967,7 +967,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'percentage',
   },
   {
-    pdfFieldName: 'TextField_118',
+    pdfFieldName: 'Text Field_118',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 1,
@@ -975,7 +975,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_119',
+    pdfFieldName: 'Text Field_119',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 1,
@@ -983,7 +983,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_120',
+    pdfFieldName: 'Text Field_120',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 1,
@@ -991,7 +991,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_121',
+    pdfFieldName: 'Text Field_121',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 1,
@@ -999,7 +999,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_122',
+    pdfFieldName: 'Text Field_122',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 1,
@@ -1007,7 +1007,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_123',
+    pdfFieldName: 'Text Field_123',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 1,
@@ -1015,7 +1015,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_124',
+    pdfFieldName: 'Text Field_124',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 1,
@@ -1023,7 +1023,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'percentage',
   },
   {
-    pdfFieldName: 'TextField_125',
+    pdfFieldName: 'Text Field_125',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 2,
@@ -1031,7 +1031,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_126',
+    pdfFieldName: 'Text Field_126',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 2,
@@ -1039,7 +1039,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_127',
+    pdfFieldName: 'Text Field_127',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 2,
@@ -1047,7 +1047,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_128',
+    pdfFieldName: 'Text Field_128',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 2,
@@ -1055,7 +1055,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_129',
+    pdfFieldName: 'Text Field_129',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 2,
@@ -1063,7 +1063,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_130',
+    pdfFieldName: 'Text Field_130',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 2,
@@ -1071,7 +1071,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_131',
+    pdfFieldName: 'Text Field_131',
     dataSource: 'schedule',
     scheduleType: 'E',
     scheduleIndex: 2,
@@ -1079,7 +1079,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'percentage',
   },
   {
-    pdfFieldName: 'TextField_132',
+    pdfFieldName: 'Text Field_132',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule E - Amount Past Due Total (114 + 121 + 128)
@@ -1088,7 +1088,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_133',
+    pdfFieldName: 'Text Field_133',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule E - Present Balance Total (116 + 123 + 130)
@@ -1102,56 +1102,56 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   // ============================================================================
   // Property 1
   {
-    pdfFieldName: 'TextField_134',
+    pdfFieldName: 'Text Field_134',
     dataSource: 'property',
     propertyIndex: 0,
     propertyField: 'address',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_135',
+    pdfFieldName: 'Text Field_135',
     dataSource: 'property',
     propertyIndex: 0,
     propertyField: 'propertyType',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_136',
+    pdfFieldName: 'Text Field_136',
     dataSource: 'property',
     propertyIndex: 0,
     propertyField: 'yearAcquired',
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_137',
+    pdfFieldName: 'Text Field_137',
     dataSource: 'property',
     propertyIndex: 0,
     propertyField: 'originalCost',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_138',
+    pdfFieldName: 'Text Field_138',
     dataSource: 'property',
     propertyIndex: 0,
     propertyField: 'currentValue',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_139',
+    pdfFieldName: 'Text Field_139',
     dataSource: 'property',
     propertyIndex: 0,
     propertyField: 'lender',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_140',
+    pdfFieldName: 'Text Field_140',
     dataSource: 'property',
     propertyIndex: 0,
     propertyField: 'balance',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_141',
+    pdfFieldName: 'Text Field_141',
     dataSource: 'property',
     propertyIndex: 0,
     propertyField: 'payment',
@@ -1159,56 +1159,56 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   },
   // Property 2
   {
-    pdfFieldName: 'TextField_142',
+    pdfFieldName: 'Text Field_142',
     dataSource: 'property',
     propertyIndex: 1,
     propertyField: 'address',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_143',
+    pdfFieldName: 'Text Field_143',
     dataSource: 'property',
     propertyIndex: 1,
     propertyField: 'propertyType',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_144',
+    pdfFieldName: 'Text Field_144',
     dataSource: 'property',
     propertyIndex: 1,
     propertyField: 'yearAcquired',
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_145',
+    pdfFieldName: 'Text Field_145',
     dataSource: 'property',
     propertyIndex: 1,
     propertyField: 'originalCost',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_146',
+    pdfFieldName: 'Text Field_146',
     dataSource: 'property',
     propertyIndex: 1,
     propertyField: 'currentValue',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_147',
+    pdfFieldName: 'Text Field_147',
     dataSource: 'property',
     propertyIndex: 1,
     propertyField: 'lender',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_148',
+    pdfFieldName: 'Text Field_148',
     dataSource: 'property',
     propertyIndex: 1,
     propertyField: 'balance',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_149',
+    pdfFieldName: 'Text Field_149',
     dataSource: 'property',
     propertyIndex: 1,
     propertyField: 'payment',
@@ -1216,56 +1216,56 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   },
   // Property 3
   {
-    pdfFieldName: 'TextField_150',
+    pdfFieldName: 'Text Field_150',
     dataSource: 'property',
     propertyIndex: 2,
     propertyField: 'address',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_151',
+    pdfFieldName: 'Text Field_151',
     dataSource: 'property',
     propertyIndex: 2,
     propertyField: 'propertyType',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_152',
+    pdfFieldName: 'Text Field_152',
     dataSource: 'property',
     propertyIndex: 2,
     propertyField: 'yearAcquired',
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_153',
+    pdfFieldName: 'Text Field_153',
     dataSource: 'property',
     propertyIndex: 2,
     propertyField: 'originalCost',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_154',
+    pdfFieldName: 'Text Field_154',
     dataSource: 'property',
     propertyIndex: 2,
     propertyField: 'currentValue',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_155',
+    pdfFieldName: 'Text Field_155',
     dataSource: 'property',
     propertyIndex: 2,
     propertyField: 'lender',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_156',
+    pdfFieldName: 'Text Field_156',
     dataSource: 'property',
     propertyIndex: 2,
     propertyField: 'balance',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_157',
+    pdfFieldName: 'Text Field_157',
     dataSource: 'property',
     propertyIndex: 2,
     propertyField: 'payment',
@@ -1273,56 +1273,56 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   },
   // Property 4
   {
-    pdfFieldName: 'TextField_158',
+    pdfFieldName: 'Text Field_158',
     dataSource: 'property',
     propertyIndex: 3,
     propertyField: 'address',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_159',
+    pdfFieldName: 'Text Field_159',
     dataSource: 'property',
     propertyIndex: 3,
     propertyField: 'propertyType',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_160',
+    pdfFieldName: 'Text Field_160',
     dataSource: 'property',
     propertyIndex: 3,
     propertyField: 'yearAcquired',
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_161',
+    pdfFieldName: 'Text Field_161',
     dataSource: 'property',
     propertyIndex: 3,
     propertyField: 'originalCost',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_162',
+    pdfFieldName: 'Text Field_162',
     dataSource: 'property',
     propertyIndex: 3,
     propertyField: 'currentValue',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_163',
+    pdfFieldName: 'Text Field_163',
     dataSource: 'property',
     propertyIndex: 3,
     propertyField: 'lender',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_164',
+    pdfFieldName: 'Text Field_164',
     dataSource: 'property',
     propertyIndex: 3,
     propertyField: 'balance',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_165',
+    pdfFieldName: 'Text Field_165',
     dataSource: 'property',
     propertyIndex: 3,
     propertyField: 'payment',
@@ -1330,56 +1330,56 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   },
   // Property 5
   {
-    pdfFieldName: 'TextField_166',
+    pdfFieldName: 'Text Field_166',
     dataSource: 'property',
     propertyIndex: 4,
     propertyField: 'address',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_167',
+    pdfFieldName: 'Text Field_167',
     dataSource: 'property',
     propertyIndex: 4,
     propertyField: 'propertyType',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_168',
+    pdfFieldName: 'Text Field_168',
     dataSource: 'property',
     propertyIndex: 4,
     propertyField: 'yearAcquired',
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_169',
+    pdfFieldName: 'Text Field_169',
     dataSource: 'property',
     propertyIndex: 4,
     propertyField: 'originalCost',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_170',
+    pdfFieldName: 'Text Field_170',
     dataSource: 'property',
     propertyIndex: 4,
     propertyField: 'currentValue',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_171',
+    pdfFieldName: 'Text Field_171',
     dataSource: 'property',
     propertyIndex: 4,
     propertyField: 'lender',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_172',
+    pdfFieldName: 'Text Field_172',
     dataSource: 'property',
     propertyIndex: 4,
     propertyField: 'balance',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_173',
+    pdfFieldName: 'Text Field_173',
     dataSource: 'property',
     propertyIndex: 4,
     propertyField: 'payment',
@@ -1387,56 +1387,56 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   },
   // Property 6
   {
-    pdfFieldName: 'TextField_174',
+    pdfFieldName: 'Text Field_174',
     dataSource: 'property',
     propertyIndex: 5,
     propertyField: 'address',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_175',
+    pdfFieldName: 'Text Field_175',
     dataSource: 'property',
     propertyIndex: 5,
     propertyField: 'propertyType',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_176',
+    pdfFieldName: 'Text Field_176',
     dataSource: 'property',
     propertyIndex: 5,
     propertyField: 'yearAcquired',
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_177',
+    pdfFieldName: 'Text Field_177',
     dataSource: 'property',
     propertyIndex: 5,
     propertyField: 'originalCost',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_178',
+    pdfFieldName: 'Text Field_178',
     dataSource: 'property',
     propertyIndex: 5,
     propertyField: 'currentValue',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_179',
+    pdfFieldName: 'Text Field_179',
     dataSource: 'property',
     propertyIndex: 5,
     propertyField: 'lender',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_180',
+    pdfFieldName: 'Text Field_180',
     dataSource: 'property',
     propertyIndex: 5,
     propertyField: 'balance',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_181',
+    pdfFieldName: 'Text Field_181',
     dataSource: 'property',
     propertyIndex: 5,
     propertyField: 'payment',
@@ -1444,56 +1444,56 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   },
   // Property 7
   {
-    pdfFieldName: 'TextField_182',
+    pdfFieldName: 'Text Field_182',
     dataSource: 'property',
     propertyIndex: 6,
     propertyField: 'address',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_183',
+    pdfFieldName: 'Text Field_183',
     dataSource: 'property',
     propertyIndex: 6,
     propertyField: 'propertyType',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_184',
+    pdfFieldName: 'Text Field_184',
     dataSource: 'property',
     propertyIndex: 6,
     propertyField: 'yearAcquired',
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_185',
+    pdfFieldName: 'Text Field_185',
     dataSource: 'property',
     propertyIndex: 6,
     propertyField: 'originalCost',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_186',
+    pdfFieldName: 'Text Field_186',
     dataSource: 'property',
     propertyIndex: 6,
     propertyField: 'currentValue',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_187',
+    pdfFieldName: 'Text Field_187',
     dataSource: 'property',
     propertyIndex: 6,
     propertyField: 'lender',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_188',
+    pdfFieldName: 'Text Field_188',
     dataSource: 'property',
     propertyIndex: 6,
     propertyField: 'balance',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_189',
+    pdfFieldName: 'Text Field_189',
     dataSource: 'property',
     propertyIndex: 6,
     propertyField: 'payment',
@@ -1501,56 +1501,56 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   },
   // Property 8
   {
-    pdfFieldName: 'TextField_190',
+    pdfFieldName: 'Text Field_190',
     dataSource: 'property',
     propertyIndex: 7,
     propertyField: 'address',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_191',
+    pdfFieldName: 'Text Field_191',
     dataSource: 'property',
     propertyIndex: 7,
     propertyField: 'propertyType',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_192',
+    pdfFieldName: 'Text Field_192',
     dataSource: 'property',
     propertyIndex: 7,
     propertyField: 'yearAcquired',
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_193',
+    pdfFieldName: 'Text Field_193',
     dataSource: 'property',
     propertyIndex: 7,
     propertyField: 'originalCost',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_194',
+    pdfFieldName: 'Text Field_194',
     dataSource: 'property',
     propertyIndex: 7,
     propertyField: 'currentValue',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_195',
+    pdfFieldName: 'Text Field_195',
     dataSource: 'property',
     propertyIndex: 7,
     propertyField: 'lender',
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_196',
+    pdfFieldName: 'Text Field_196',
     dataSource: 'property',
     propertyIndex: 7,
     propertyField: 'balance',
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_197',
+    pdfFieldName: 'Text Field_197',
     dataSource: 'property',
     propertyIndex: 7,
     propertyField: 'payment',
@@ -1558,7 +1558,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   },
   // Schedule F Totals
   {
-    pdfFieldName: 'TextField_198',
+    pdfFieldName: 'Text Field_198',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule F - Current Value Total
@@ -1569,7 +1569,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_199',
+    pdfFieldName: 'Text Field_199',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule F - Balance Total
@@ -1581,7 +1581,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_200',
+    pdfFieldName: 'Text Field_200',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule F - Payment Total (141 + 149 + 157 + 165 + 173 + 181 + 189 + 197)
@@ -1597,7 +1597,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   // SCHEDULE G - Open Accounts Payable (3 rows)
   // ============================================================================
   {
-    pdfFieldName: 'TextField_201',
+    pdfFieldName: 'Text Field_201',
     dataSource: 'schedule',
     scheduleType: 'G',
     scheduleIndex: 0,
@@ -1605,7 +1605,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_202',
+    pdfFieldName: 'Text Field_202',
     dataSource: 'schedule',
     scheduleType: 'G',
     scheduleIndex: 0,
@@ -1613,7 +1613,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_203',
+    pdfFieldName: 'Text Field_203',
     dataSource: 'schedule',
     scheduleType: 'G',
     scheduleIndex: 0,
@@ -1621,7 +1621,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_207',
+    pdfFieldName: 'Text Field_207',
     dataSource: 'schedule',
     scheduleType: 'G',
     scheduleIndex: 1,
@@ -1629,7 +1629,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_208',
+    pdfFieldName: 'Text Field_208',
     dataSource: 'schedule',
     scheduleType: 'G',
     scheduleIndex: 1,
@@ -1637,7 +1637,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_209',
+    pdfFieldName: 'Text Field_209',
     dataSource: 'schedule',
     scheduleType: 'G',
     scheduleIndex: 1,
@@ -1645,7 +1645,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_213',
+    pdfFieldName: 'Text Field_213',
     dataSource: 'schedule',
     scheduleType: 'G',
     scheduleIndex: 2,
@@ -1653,7 +1653,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_214',
+    pdfFieldName: 'Text Field_214',
     dataSource: 'schedule',
     scheduleType: 'G',
     scheduleIndex: 2,
@@ -1661,7 +1661,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_215',
+    pdfFieldName: 'Text Field_215',
     dataSource: 'schedule',
     scheduleType: 'G',
     scheduleIndex: 2,
@@ -1669,7 +1669,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_219',
+    pdfFieldName: 'Text Field_219',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule G total
@@ -1682,7 +1682,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   // SCHEDULE H - Notes Payable to Others (3 rows)
   // ============================================================================
   {
-    pdfFieldName: 'TextField_204',
+    pdfFieldName: 'Text Field_204',
     dataSource: 'schedule',
     scheduleType: 'H',
     scheduleIndex: 0,
@@ -1690,7 +1690,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_205',
+    pdfFieldName: 'Text Field_205',
     dataSource: 'schedule',
     scheduleType: 'H',
     scheduleIndex: 0,
@@ -1698,7 +1698,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_206',
+    pdfFieldName: 'Text Field_206',
     dataSource: 'schedule',
     scheduleType: 'H',
     scheduleIndex: 0,
@@ -1706,7 +1706,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_210',
+    pdfFieldName: 'Text Field_210',
     dataSource: 'schedule',
     scheduleType: 'H',
     scheduleIndex: 1,
@@ -1714,7 +1714,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_211',
+    pdfFieldName: 'Text Field_211',
     dataSource: 'schedule',
     scheduleType: 'H',
     scheduleIndex: 1,
@@ -1722,7 +1722,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_212',
+    pdfFieldName: 'Text Field_212',
     dataSource: 'schedule',
     scheduleType: 'H',
     scheduleIndex: 1,
@@ -1730,7 +1730,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_216',
+    pdfFieldName: 'Text Field_216',
     dataSource: 'schedule',
     scheduleType: 'H',
     scheduleIndex: 2,
@@ -1738,7 +1738,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_217',
+    pdfFieldName: 'Text Field_217',
     dataSource: 'schedule',
     scheduleType: 'H',
     scheduleIndex: 2,
@@ -1746,7 +1746,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_218',
+    pdfFieldName: 'Text Field_218',
     dataSource: 'schedule',
     scheduleType: 'H',
     scheduleIndex: 2,
@@ -1754,7 +1754,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_220',
+    pdfFieldName: 'Text Field_220',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule H total
@@ -1768,7 +1768,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   // ============================================================================
   // Row 1
   {
-    pdfFieldName: 'TextField_221',
+    pdfFieldName: 'Text Field_221',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 0,
@@ -1776,7 +1776,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_222',
+    pdfFieldName: 'Text Field_222',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 0,
@@ -1784,7 +1784,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_223',
+    pdfFieldName: 'Text Field_223',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 0,
@@ -1792,7 +1792,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_224',
+    pdfFieldName: 'Text Field_224',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 0,
@@ -1800,7 +1800,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_225',
+    pdfFieldName: 'Text Field_225',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 0,
@@ -1809,7 +1809,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   },
   // Row 2
   {
-    pdfFieldName: 'TextField_226',
+    pdfFieldName: 'Text Field_226',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 1,
@@ -1817,7 +1817,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_227',
+    pdfFieldName: 'Text Field_227',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 1,
@@ -1825,7 +1825,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_228',
+    pdfFieldName: 'Text Field_228',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 1,
@@ -1833,7 +1833,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_229',
+    pdfFieldName: 'Text Field_229',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 1,
@@ -1841,7 +1841,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_230',
+    pdfFieldName: 'Text Field_230',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 1,
@@ -1850,7 +1850,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   },
   // Row 3
   {
-    pdfFieldName: 'TextField_231',
+    pdfFieldName: 'Text Field_231',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 2,
@@ -1858,7 +1858,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_232',
+    pdfFieldName: 'Text Field_232',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 2,
@@ -1866,7 +1866,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_233',
+    pdfFieldName: 'Text Field_233',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 2,
@@ -1874,7 +1874,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_234',
+    pdfFieldName: 'Text Field_234',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 2,
@@ -1882,7 +1882,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_235',
+    pdfFieldName: 'Text Field_235',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 2,
@@ -1891,7 +1891,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   },
   // Row 4
   {
-    pdfFieldName: 'TextField_236',
+    pdfFieldName: 'Text Field_236',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 3,
@@ -1899,7 +1899,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_237',
+    pdfFieldName: 'Text Field_237',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 3,
@@ -1907,7 +1907,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_238',
+    pdfFieldName: 'Text Field_238',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 3,
@@ -1915,7 +1915,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_239',
+    pdfFieldName: 'Text Field_239',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 3,
@@ -1923,7 +1923,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_240',
+    pdfFieldName: 'Text Field_240',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 3,
@@ -1932,7 +1932,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   },
   // Row 5
   {
-    pdfFieldName: 'TextField_241',
+    pdfFieldName: 'Text Field_241',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 4,
@@ -1940,7 +1940,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_242',
+    pdfFieldName: 'Text Field_242',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 4,
@@ -1948,7 +1948,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_243',
+    pdfFieldName: 'Text Field_243',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 4,
@@ -1956,7 +1956,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_244',
+    pdfFieldName: 'Text Field_244',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 4,
@@ -1964,7 +1964,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_245',
+    pdfFieldName: 'Text Field_245',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 4,
@@ -1973,7 +1973,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   },
   // Row 6
   {
-    pdfFieldName: 'TextField_246',
+    pdfFieldName: 'Text Field_246',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 5,
@@ -1981,7 +1981,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_247',
+    pdfFieldName: 'Text Field_247',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 5,
@@ -1989,7 +1989,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_248',
+    pdfFieldName: 'Text Field_248',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 5,
@@ -1997,7 +1997,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_249',
+    pdfFieldName: 'Text Field_249',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 5,
@@ -2005,7 +2005,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_250',
+    pdfFieldName: 'Text Field_250',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 5,
@@ -2014,7 +2014,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   },
   // Row 7
   {
-    pdfFieldName: 'TextField_251',
+    pdfFieldName: 'Text Field_251',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 6,
@@ -2022,7 +2022,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_252',
+    pdfFieldName: 'Text Field_252',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 6,
@@ -2030,7 +2030,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_253',
+    pdfFieldName: 'Text Field_253',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 6,
@@ -2038,7 +2038,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_254',
+    pdfFieldName: 'Text Field_254',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 6,
@@ -2046,7 +2046,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_255',
+    pdfFieldName: 'Text Field_255',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 6,
@@ -2055,7 +2055,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   },
   // Row 8
   {
-    pdfFieldName: 'TextField_256',
+    pdfFieldName: 'Text Field_256',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 7,
@@ -2063,7 +2063,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_257',
+    pdfFieldName: 'Text Field_257',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 7,
@@ -2071,7 +2071,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'text',
   },
   {
-    pdfFieldName: 'TextField_258',
+    pdfFieldName: 'Text Field_258',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 7,
@@ -2079,7 +2079,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_259',
+    pdfFieldName: 'Text Field_259',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 7,
@@ -2087,7 +2087,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'date',
   },
   {
-    pdfFieldName: 'TextField_260',
+    pdfFieldName: 'Text Field_260',
     dataSource: 'schedule',
     scheduleType: 'I',
     scheduleIndex: 7,
@@ -2096,7 +2096,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
   },
   // Schedule I Totals
   {
-    pdfFieldName: 'TextField_261',
+    pdfFieldName: 'Text Field_261',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule I - Balance Total
@@ -2105,7 +2105,7 @@ export const PFS_FIELD_MAPPINGS: PFSFieldMapping[] = [
     fieldType: 'currency',
   },
   {
-    pdfFieldName: 'TextField_262',
+    pdfFieldName: 'Text Field_262',
     dataSource: 'calculated',
     calculate: (data) => {
       // Schedule I - Monthly Payment Total

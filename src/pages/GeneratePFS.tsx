@@ -35,12 +35,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { generatePFSPDF, downloadPDF, type PFSFormData } from "@/lib/pdf/generate-pfs-pdf";
 import {
   getAvailableTemplates,
   loadTemplate,
   type PDFTemplate,
 } from "@/lib/pdf/template-manager";
+import {
+  fillPFSForm,
+  downloadPDF,
+  type PFSFormData,
+} from "@/lib/pdf/pdf-filler";
 import {
   Select,
   SelectContent,
@@ -82,8 +86,12 @@ export default function GeneratePFS() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [pdfTemplate, setPdfTemplate] = useState<Uint8Array | null>(null);
   const [isLoadingTemplate, setIsLoadingTemplate] = useState(false);
-  const [availableTemplates, setAvailableTemplates] = useState<PDFTemplate[]>([]);
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const [availableTemplates, setAvailableTemplates] = useState<PDFTemplate[]>(
+    []
+  );
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
+    null
+  );
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
 
   // Property selection state
@@ -842,16 +850,17 @@ export default function GeneratePFS() {
       try {
         const templates = await getAvailableTemplates();
         // Only show pre-loaded templates (CCCU.pdf)
-        const preloadedOnly = templates.filter(t => t.isPreloaded);
+        const preloadedOnly = templates.filter((t) => t.isPreloaded);
         setAvailableTemplates(preloadedOnly);
         // Auto-select default template if available
         if (preloadedOnly.length > 0 && !selectedTemplateId) {
-          const defaultTemplate = preloadedOnly.find(t => t.id === 'default') || preloadedOnly[0];
+          const defaultTemplate =
+            preloadedOnly.find((t) => t.id === "default") || preloadedOnly[0];
           setSelectedTemplateId(defaultTemplate.id);
           await handleTemplateSelect(defaultTemplate.id);
         }
       } catch (error) {
-        console.error('Failed to load templates:', error);
+        console.error("Failed to load templates:", error);
       } finally {
         setIsLoadingTemplates(false);
       }
@@ -859,7 +868,6 @@ export default function GeneratePFS() {
     loadTemplates();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
 
   const handleGenerate = async () => {
     if (!pdfTemplate) {
@@ -873,45 +881,66 @@ export default function GeneratePFS() {
 
     setIsGenerating(true);
     try {
-      // Collect all form data
-      const selectedPropertiesList = data?.properties.filter((p) =>
-        selectedProperties.has(p.id)
-      ) || [];
+      // Assemble form data from all state variables
+      const selectedPropertiesList =
+        data?.properties.filter((p) => selectedProperties.has(p.id)) || [];
+
+      // Prepare selected properties with mortgage data
+      const propertiesWithMortgages = selectedPropertiesList.map((property) => {
+        const mortgage = data?.mortgages.find(
+          (m) => m.propertyId === property.id
+        );
+        return {
+          id: property.id,
+          address: property.address,
+          propertyType: "Residential", // Default, could be enhanced
+          yearAcquired: "", // Not currently tracked in Property type
+          originalCost: property.purchasePrice,
+          currentValue: property.currentValue,
+          ownershipPercentage: property.ownershipPercentage,
+          lender: mortgage?.lender,
+          balance: mortgage?.principalBalance,
+          payment: mortgage?.paymentAmount,
+        };
+      });
 
       // Calculate summaries
-      const totalAssets = 
-        (cashOnHand || 0) +
-        (cashOtherInstitutions || 0) +
-        (buildingMaterialInventory || 0) +
-        (lifeInsuranceCashValue || 0) +
-        (retirementAccounts || 0) +
-        (automobilesTrucks || 0) +
-        (machineryTools || 0) +
-        (otherAssetsValue || 0) +
+      const totalAssets =
+        cashOnHand +
+        cashOtherInstitutions +
         scheduleA.reduce((sum, item) => sum + (item.amount || 0), 0) +
         scheduleB.reduce((sum, item) => sum + (item.amount || 0), 0) +
+        buildingMaterialInventory +
         scheduleC.reduce((sum, item) => sum + (item.totalValue || 0), 0) +
-        scheduleD.reduce((sum, item) => sum + (item.totalValue || 0), 0) +
+        lifeInsuranceCashValue +
+        retirementAccounts +
+        selectedPropertiesList.reduce(
+          (sum, p) => sum + p.currentValue * (p.ownershipPercentage / 100),
+          0
+        ) +
+        automobilesTrucks +
+        machineryTools +
         scheduleE.reduce((sum, item) => sum + (item.presentBalance || 0), 0) +
-        selectedPropertiesList.reduce((sum, prop) => {
-          return sum + ((prop.currentValue || 0) * ((prop.ownershipPercentage || 0) / 100));
-        }, 0);
+        scheduleD.reduce((sum, item) => sum + (item.totalValue || 0), 0) +
+        otherAssetsValue;
 
       const totalLiabilities =
-        (notesPayableRelatives || 0) +
-        (accruedInterest || 0) +
-        (accruedSalaryWages || 0) +
-        (accruedTaxesOther || 0) +
-        (incomeTaxPayable || 0) +
-        (chattelMortgage || 0) +
-        (otherLiabilitiesValue || 0) +
         scheduleG.reduce((sum, item) => sum + (item.amount || 0), 0) +
+        notesPayableRelatives +
         scheduleH.reduce((sum, item) => sum + (item.amount || 0), 0) +
+        accruedInterest +
+        accruedSalaryWages +
+        accruedTaxesOther +
+        incomeTaxPayable +
         scheduleI.reduce((sum, item) => sum + (item.balance || 0), 0) +
         selectedPropertiesList.reduce((sum, prop) => {
-          const mortgage = data?.mortgages.find((m) => m.propertyId === prop.id);
+          const mortgage = data?.mortgages.find(
+            (m) => m.propertyId === prop.id
+          );
           return sum + (mortgage?.principalBalance || 0);
-        }, 0);
+        }, 0) +
+        chattelMortgage +
+        otherLiabilitiesValue;
 
       const formData: PFSFormData = {
         borrowerName,
@@ -932,18 +961,20 @@ export default function GeneratePFS() {
         chattelMortgage,
         otherLiabilities,
         otherLiabilitiesValue,
+        guaranteedLoans,
+        suretyBonds,
+        contingentOther,
+        contingentOtherValue,
+        insuranceDescription: "", // Not currently in form
+        insuranceAmount: 0, // Not currently in form
+        lifeInsuranceFaceValue,
+        lifeInsuranceBorrowed,
         salaryWages,
         proprietorshipDraws,
         commissionsBonus,
         dividendsInterest,
         rentals,
         otherIncome,
-        guaranteedLoans,
-        suretyBonds,
-        contingentOther,
-        contingentOtherValue,
-        lifeInsuranceFaceValue,
-        lifeInsuranceBorrowed,
         scheduleA,
         scheduleB,
         scheduleC,
@@ -952,38 +983,70 @@ export default function GeneratePFS() {
         scheduleG,
         scheduleH,
         scheduleI,
-        selectedProperties: selectedPropertiesList.map((prop) => ({
-          id: prop.id,
-          address: prop.address,
-          currentValue: prop.currentValue,
-          ownershipPercentage: prop.ownershipPercentage,
-          purchasePrice: prop.purchasePrice,
-          propertyType: "Residential",
-          acquisitionDate: undefined,
+        selectedProperties: propertiesWithMortgages,
+        mortgages: data?.mortgages.map((m) => ({
+          propertyId: m.propertyId,
+          principalBalance: m.principalBalance,
+          paymentAmount: m.paymentAmount,
         })),
-        mortgages: data?.mortgages || [],
         summaries: {
           totalAssets,
           totalLiabilities,
         },
       };
 
-      // Generate PDF
-      const pdfBytes = await generatePFSPDF(pdfTemplate, formData);
-      
+      // Validate form data has some values
+      const hasData =
+        borrowerName.trim() !== "" ||
+        cashOnHand > 0 ||
+        cashOtherInstitutions > 0 ||
+        scheduleA.some((item) => item.name || item.amount > 0) ||
+        selectedPropertiesList.length > 0;
+
+      if (!hasData) {
+        toast({
+          title: "No Data to Fill",
+          description:
+            "Please enter some data in the form before generating the PDF.",
+          variant: "destructive",
+        });
+        setIsGenerating(false);
+        return;
+      }
+
+      // Fill PDF with form data
+      console.log("=== Starting PDF Generation ===");
+      console.log("Form data sample:", {
+        borrowerName,
+        cashOnHand,
+        scheduleACount: scheduleA.length,
+        selectedPropertiesCount: selectedPropertiesList.length,
+      });
+
+      const filledPDFBytes = await fillPFSForm(pdfTemplate, formData, {
+        flatten: true, // Prevent further editing
+        debug: true, // Enable debug logging to console
+      });
+
+      // Generate filename with date
+      const timestamp = new Date().toISOString().split("T")[0];
+      const filename = `164PFS_${timestamp}.pdf`;
+
       // Download PDF
-      const filename = `PFS-${borrowerName || 'Statement'}-${new Date().toISOString().split('T')[0]}.pdf`;
-      downloadPDF(pdfBytes, filename);
+      downloadPDF(filledPDFBytes, filename);
 
       toast({
-        title: "PDF Generated",
-        description: "Your Personal Financial Statement has been generated and downloaded.",
+        title: "PDF Generated Successfully",
+        description: `Your PFS has been generated and downloaded as ${filename}`,
       });
     } catch (error) {
-      console.error("PDF generation error:", error);
+      console.error("Error generating PDF:", error);
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to generate PDF",
+        title: "Error Generating PDF",
+        description:
+          error instanceof Error
+            ? error.message
+            : "An error occurred while generating the PDF.",
         variant: "destructive",
       });
     } finally {
@@ -1053,31 +1116,26 @@ export default function GeneratePFS() {
               Configure and generate your Personal Financial Statement
             </p>
           </div>
-          <div className="flex gap-2 items-end">
-            <div className="space-y-2 flex-1 max-w-xs">
-              <Label htmlFor="template-select" className="text-sm">
-                Select Template
-              </Label>
-              <Select
-                value={selectedTemplateId || ""}
-                onValueChange={handleTemplateSelect}
-                disabled={isLoadingTemplates || isLoadingTemplate || isGenerating}
-              >
-                <SelectTrigger id="template-select">
-                  <SelectValue placeholder="Choose a template..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableTemplates.map((template) => (
-                    <SelectItem key={template.id} value={template.id}>
-                      {template.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="flex gap-3 items-center">
+            <Select
+              value={selectedTemplateId || ""}
+              onValueChange={handleTemplateSelect}
+              disabled={isLoadingTemplates || isLoadingTemplate || isGenerating}
+            >
+              <SelectTrigger id="template-select" className="w-[200px]">
+                <SelectValue placeholder="Select template..." />
+              </SelectTrigger>
+              <SelectContent>
+                {availableTemplates.map((template) => (
+                  <SelectItem key={template.id} value={template.id}>
+                    {template.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Button
               onClick={handleGenerate}
-              disabled={isGenerating || !pdfTemplate || isLoadingTemplate}
+              disabled={isGenerating || isLoadingTemplate}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
               size="lg"
             >
@@ -1089,19 +1147,20 @@ export default function GeneratePFS() {
               ) : (
                 <>
                   <FileText className="h-4 w-4 mr-2" />
-                  Generate PDF
+                  Generate PFS
                 </>
               )}
             </Button>
           </div>
         </div>
 
-        {!pdfTemplate && (
+        {!selectedTemplateId && (
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>PDF Template Required</AlertTitle>
             <AlertDescription>
-              Please select a PDF template from the dropdown above before generating the statement.
+              Please select a PDF template from the dropdown above before
+              generating the statement.
             </AlertDescription>
           </Alert>
         )}

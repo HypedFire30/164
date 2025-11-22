@@ -4,6 +4,7 @@
  * Main export file for PDF-related utilities
  */
 
-export * from './extract-form-fields';
-export * from './pdf-field-mapper';
+export * from './pfs-field-mapping';
+export * from './template-manager';
+export * from './pdf-filler';
 
