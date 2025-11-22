@@ -12,12 +12,11 @@ A modern, automated Personal Financial Statement (PFS) generation platform for 1
 
 ## Quick Start
 
-1. **Set up Airtable**: Follow the detailed instructions in [SETUP.md](./SETUP.md)
-2. **Install dependencies**: `npm install`
-3. **Configure environment**: Create a `.env` file with your Airtable credentials
-4. **Run the app**: `npm run dev`
-
-See [SETUP.md](./SETUP.md) for complete setup instructions.
+1. **Install dependencies**: `npm install`
+2. **Configure environment**: Create a `.env` file with your Airtable credentials:
+   - `VITE_AIRTABLE_API_KEY`: Your Airtable API key
+   - `VITE_AIRTABLE_BASE_ID`: Your Airtable base ID
+3. **Run the app**: `npm run dev`
 
 ## How can I edit this code?
 
