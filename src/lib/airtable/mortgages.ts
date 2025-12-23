@@ -1,5 +1,6 @@
 import { getAirtableBase, TABLES } from "./client";
 import type { Mortgage } from "@/types";
+import { markSnapshotsOutdated } from "@/lib/snapshots/snapshot-repository";
 
 /**
  * Fetch all mortgages from Airtable
@@ -81,6 +82,14 @@ export async function updateMortgageBalance(
       last_updated: new Date().toISOString(),
     });
 
+    // Mark snapshots as outdated
+    try {
+      await markSnapshotsOutdated(`Mortgage balance updated: ${id}`);
+    } catch (error) {
+      console.error("Error marking snapshots outdated:", error);
+      // Don't fail the update if snapshot marking fails
+    }
+
     return {
       id: record.id,
       propertyId: (record.fields.property_id as string) || "",
@@ -114,6 +123,14 @@ export async function createMortgage(mortgage: Omit<Mortgage, "id">): Promise<Mo
       payment_amount: mortgage.paymentAmount,
       last_updated: mortgage.lastUpdated || new Date().toISOString(),
     });
+
+    // Mark snapshots as outdated
+    try {
+      await markSnapshotsOutdated(`New mortgage created: ${record.id}`);
+    } catch (error) {
+      console.error("Error marking snapshots outdated:", error);
+      // Don't fail the create if snapshot marking fails
+    }
 
     return {
       id: record.id,

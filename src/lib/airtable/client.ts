@@ -32,5 +32,6 @@ export const TABLES = {
   PERSONAL_ASSETS: "PersonalAssets",
   LIABILITIES: "Liabilities",
   VALUATION_HISTORY: "ValuationHistory",
+  PFS_SNAPSHOTS: "PFSSnapshots",
 } as const;
 

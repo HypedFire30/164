@@ -1,5 +1,6 @@
 import { getAirtableBase, TABLES } from "./client";
 import type { PersonalAsset, Liability } from "@/types";
+import { markSnapshotsOutdated } from "@/lib/snapshots/snapshot-repository";
 
 /**
  * Fetch all personal assets from Airtable
@@ -98,6 +99,14 @@ export async function updatePersonalAsset(
 
     const record = await base(TABLES.PERSONAL_ASSETS).update(id, fields);
 
+    // Mark snapshots as outdated
+    try {
+      await markSnapshotsOutdated(`Personal asset updated: ${id}`);
+    } catch (error) {
+      console.error("Error marking snapshots outdated:", error);
+      // Don't fail the update if snapshot marking fails
+    }
+
     return {
       id: record.id,
       category: (record.fields.category as string) || "",
@@ -144,6 +153,14 @@ export async function updateLiability(
     if (updates.notes !== undefined) fields.notes = updates.notes || null;
 
     const record = await base(TABLES.LIABILITIES).update(id, fields);
+
+    // Mark snapshots as outdated
+    try {
+      await markSnapshotsOutdated(`Liability updated: ${id}`);
+    } catch (error) {
+      console.error("Error marking snapshots outdated:", error);
+      // Don't fail the update if snapshot marking fails
+    }
 
     return {
       id: record.id,

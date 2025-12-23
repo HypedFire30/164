@@ -45,6 +45,7 @@ import {
   downloadPDF,
   type PFSFormData,
 } from "@/lib/pdf/pdf-filler";
+import { saveSnapshot } from "@/lib/snapshots/snapshot-repository";
 import {
   Select,
   SelectContent,
@@ -1034,6 +1035,41 @@ export default function GeneratePFS() {
 
       // Download PDF
       downloadPDF(filledPDFBytes, filename);
+
+      // Automatically save snapshot
+      try {
+        const snapshotDate = new Date().toISOString();
+        const snapshotName = `PFS Snapshot - ${new Date().toLocaleDateString()}`;
+        const netWorth = totalAssets - totalLiabilities;
+
+        // Get template info
+        const selectedTemplate = availableTemplates.find(
+          (t) => t.id === selectedTemplateId
+        );
+        const templateId = selectedTemplateId || undefined;
+        const templateName = selectedTemplate?.name || undefined;
+
+        await saveSnapshot({
+          userId: "current-user", // TODO: Get from auth
+          snapshotName,
+          snapshotDate,
+          templateId,
+          templateName,
+          formData,
+          totals: {
+            totalAssets,
+            totalLiabilities,
+            netWorth,
+          },
+          isOutdated: false,
+          notes: `Auto-saved when PDF was generated: ${filename}`,
+        });
+
+        console.log("Snapshot saved successfully");
+      } catch (snapshotError) {
+        console.error("Error saving snapshot:", snapshotError);
+        // Don't fail the PDF generation if snapshot save fails
+      }
 
       toast({
         title: "PDF Generated Successfully",

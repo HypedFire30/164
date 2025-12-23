@@ -27,7 +27,7 @@ export async function getAvailableTemplates(): Promise<PDFTemplate[]> {
     const preloadedTemplates = [
       {
         id: 'default',
-        name: 'CCCU PFS Template',
+        name: 'CC Credit Union',
         filename: 'CCCU.pdf',
         isPreloaded: true,
       },

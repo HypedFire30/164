@@ -11,6 +11,7 @@ import Assets from "./pages/Assets";
 import AssetDetail from "./pages/AssetDetail";
 import LiabilityDetail from "./pages/LiabilityDetail";
 import GeneratePFS from "./pages/GeneratePFS";
+import Snapshots from "./pages/Snapshots";
 import NotFound from "./pages/NotFound";
 import { ErrorBoundary } from "react-error-boundary";
 
@@ -73,6 +74,7 @@ const App = () => {
               <Route path="/assets/asset/:id" element={<AssetDetail />} />
               <Route path="/assets/liability/:id" element={<LiabilityDetail />} />
               <Route path="/generate" element={<GeneratePFS />} />
+              <Route path="/snapshots" element={<Snapshots />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

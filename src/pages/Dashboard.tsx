@@ -24,6 +24,7 @@ import {
   Edit,
   CheckCircle2,
   PieChart,
+  History,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -147,6 +148,14 @@ export default function Dashboard() {
             </p>
           </div>
           <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => navigate("/snapshots")}
+              className="hidden sm:flex"
+            >
+              <History className="h-4 w-4 mr-2" />
+              Snapshots
+            </Button>
             <Button
               variant="outline"
               onClick={() => navigate("/properties")}

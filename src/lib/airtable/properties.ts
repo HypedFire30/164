@@ -1,5 +1,6 @@
 import { getAirtableBase, TABLES } from "./client";
 import type { Property } from "@/types";
+import { markSnapshotsOutdated } from "@/lib/snapshots/snapshot-repository";
 
 /**
  * Fetch all properties from Airtable
@@ -87,6 +88,14 @@ export async function updatePropertyValue(
       current_value: newValue,
     });
 
+    // Mark snapshots as outdated
+    try {
+      await markSnapshotsOutdated(`Property value updated: ${id}`);
+    } catch (error) {
+      console.error("Error marking snapshots outdated:", error);
+      // Don't fail the update if snapshot marking fails
+    }
+
     return {
       id: record.id,
       address: (record.fields.address as string) || "",
@@ -137,6 +146,14 @@ export async function updateProperty(
 
     const record = await base(TABLES.PROPERTIES).update(id, fields);
 
+    // Mark snapshots as outdated
+    try {
+      await markSnapshotsOutdated(`Property updated: ${id}`);
+    } catch (error) {
+      console.error("Error marking snapshots outdated:", error);
+      // Don't fail the update if snapshot marking fails
+    }
+
     return {
       id: record.id,
       address: (record.fields.address as string) || "",
@@ -182,6 +199,14 @@ export async function createProperty(property: Omit<Property, "id">): Promise<Pr
       schedule_e_present_balance: property.scheduleEPresentBalance || undefined,
       schedule_e_interest_rate: property.scheduleEInterestRate || undefined,
     });
+
+    // Mark snapshots as outdated
+    try {
+      await markSnapshotsOutdated(`New property created: ${record.id}`);
+    } catch (error) {
+      console.error("Error marking snapshots outdated:", error);
+      // Don't fail the create if snapshot marking fails
+    }
 
     return {
       id: record.id,

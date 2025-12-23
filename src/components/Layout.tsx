@@ -7,6 +7,7 @@ import {
   FileText,
   PieChart,
   FileCheck,
+  History,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +20,7 @@ const navigation = [
   { name: "Properties", href: "/properties", icon: Building2 },
   { name: "Assets & Liabilities", href: "/assets", icon: Wallet },
   { name: "Generate PFS", href: "/generate", icon: FileCheck },
+  { name: "Snapshots", href: "/snapshots", icon: History },
 ];
 
 export function Layout({ children }: LayoutProps) {
