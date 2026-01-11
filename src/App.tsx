@@ -12,6 +12,12 @@ import AssetDetail from "./pages/AssetDetail";
 import LiabilityDetail from "./pages/LiabilityDetail";
 import GeneratePFS from "./pages/GeneratePFS";
 import Snapshots from "./pages/Snapshots";
+import Business from "./pages/Business";
+import Personal from "./pages/Personal";
+import Documents from "./pages/Documents";
+import GenerateRentRoll from "./pages/GenerateRentRoll";
+import GenerateW2 from "./pages/GenerateW2";
+import GenerateScheduleE from "./pages/GenerateScheduleE";
 import NotFound from "./pages/NotFound";
 import { ErrorBoundary } from "react-error-boundary";
 
@@ -73,6 +79,16 @@ const App = () => {
               <Route path="/assets" element={<Assets />} />
               <Route path="/assets/asset/:id" element={<AssetDetail />} />
               <Route path="/assets/liability/:id" element={<LiabilityDetail />} />
+              <Route path="/business" element={<Business />} />
+              <Route path="/personal" element={<Personal />} />
+              <Route path="/personal/assets" element={<Assets />} />
+              <Route path="/assets" element={<Assets />} />
+              <Route path="/assets/asset/:id" element={<AssetDetail />} />
+              <Route path="/assets/liability/:id" element={<LiabilityDetail />} />
+              <Route path="/documents" element={<Documents />} />
+              <Route path="/documents/rent-roll" element={<GenerateRentRoll />} />
+              <Route path="/documents/w2" element={<GenerateW2 />} />
+              <Route path="/documents/schedule-e" element={<GenerateScheduleE />} />
               <Route path="/generate" element={<GeneratePFS />} />
               <Route path="/snapshots" element={<Snapshots />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

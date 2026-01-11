@@ -1273,6 +1273,20 @@ export default function PropertiesTable() {
                           <TableRow
                             key={property.id}
                             data-property-id={property.id}
+                            className="cursor-pointer hover:bg-muted/50"
+                            onClick={(e) => {
+                              // Don't navigate if clicking on input, button, or checkbox
+                              const target = e.target as HTMLElement;
+                              if (
+                                target.tagName === "INPUT" ||
+                                target.tagName === "BUTTON" ||
+                                target.closest("button") ||
+                                target.closest("input")
+                              ) {
+                                return;
+                              }
+                              navigate(`/properties/${property.id}`);
+                            }}
                           >
                             {/* Bulk Select Checkbox */}
                             {isBulkMode && (

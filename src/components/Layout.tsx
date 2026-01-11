@@ -8,6 +8,9 @@ import {
   PieChart,
   FileCheck,
   History,
+  Briefcase,
+  User,
+  FolderOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -17,10 +20,14 @@ interface LayoutProps {
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: Home },
+  { name: "Personal", href: "/personal", icon: User },
+  { name: "Business", href: "/business", icon: Briefcase },
+  { name: "Documents", href: "/documents", icon: FolderOpen },
+];
+
+// Properties are now under Business
+const businessSubNav = [
   { name: "Properties", href: "/properties", icon: Building2 },
-  { name: "Assets & Liabilities", href: "/assets", icon: Wallet },
-  { name: "Generate PFS", href: "/generate", icon: FileCheck },
-  { name: "Snapshots", href: "/snapshots", icon: History },
 ];
 
 export function Layout({ children }: LayoutProps) {

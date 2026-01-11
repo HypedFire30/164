@@ -20,6 +20,7 @@ import {
   Search,
   SortAsc,
   SortDesc,
+  ArrowLeft,
 } from "lucide-react";
 import { usePFSData } from "@/hooks/usePFSData";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -208,19 +209,29 @@ export default function Assets() {
     <Layout>
       <div className="space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Assets & Liabilities
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your personal assets and liabilities. These will
-            automatically populate in the Generate PFS form.
-          </p>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/personal")}
+            className="transition-all hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+              Assets & Liabilities
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Manage your personal assets and liabilities. These will
+              automatically populate in the Generate PFS form.
+            </p>
+          </div>
         </div>
 
         {/* Summary Cards */}
         <div className="grid gap-4 md:grid-cols-3">
-          <Card>
+          <Card className="transition-all hover:shadow-lg hover:scale-[1.02] duration-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Total Assets
@@ -236,7 +247,7 @@ export default function Assets() {
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="transition-all hover:shadow-lg hover:scale-[1.02] duration-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Total Liabilities
@@ -252,7 +263,7 @@ export default function Assets() {
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="transition-all hover:shadow-lg hover:scale-[1.02] duration-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Net Position
@@ -288,7 +299,7 @@ export default function Assets() {
                 variant="outline"
                 size="sm"
                 onClick={handleAddAsset}
-                className="bg-primary text-primary-foreground hover:bg-primary/90"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 hover:scale-105"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add
@@ -352,7 +363,7 @@ export default function Assets() {
                   filteredAndSortedAssets.map((asset) => (
                     <Card
                       key={asset.id}
-                      className="transition-all hover:shadow-md border-l-4 border-l-green-500 cursor-pointer"
+                      className="transition-all hover:shadow-lg hover:scale-[1.02] duration-200 border-l-4 border-l-green-500 cursor-pointer"
                       onClick={() => navigate(`/assets/asset/${asset.id}`)}
                     >
                       <CardHeader className="pb-3">
@@ -420,7 +431,7 @@ export default function Assets() {
                 variant="outline"
                 size="sm"
                 onClick={handleAddLiability}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-all duration-200 hover:scale-105"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add
@@ -486,7 +497,7 @@ export default function Assets() {
                   filteredAndSortedLiabilities.map((liability) => (
                     <Card
                       key={liability.id}
-                      className="transition-all hover:shadow-md border-l-4 border-l-red-500 cursor-pointer"
+                      className="transition-all hover:shadow-lg hover:scale-[1.02] duration-200 border-l-4 border-l-red-500 cursor-pointer"
                       onClick={() =>
                         navigate(`/assets/liability/${liability.id}`)
                       }

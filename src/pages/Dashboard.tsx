@@ -314,10 +314,103 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Recent Activity */}
+        <Card className="border-l-4 border-l-primary bg-primary/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <History className="h-5 w-5 text-primary" />
+              Recent Activity
+            </CardTitle>
+            <CardDescription>Latest updates and changes</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {properties.length > 0 ? (
+                <>
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 hover:bg-background transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                      <Building2 className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">
+                        {properties.length} {properties.length === 1 ? "property" : "properties"} in portfolio
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Total value: {formatCurrency(totals.totalRealEstateValue)}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate("/properties")}
+                      className="transition-all hover:bg-primary/10"
+                    >
+                      View All
+                    </Button>
+                  </div>
+                  {personalAssets.length > 0 && (
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 hover:bg-background transition-colors">
+                      <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center">
+                        <Wallet className="h-4 w-4 text-success" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">
+                          {personalAssets.length} {personalAssets.length === 1 ? "asset" : "assets"} tracked
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Total value: {formatCurrency(totals.totalPersonalAssets)}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigate("/assets")}
+                        className="transition-all hover:bg-success/10"
+                      >
+                        View All
+                      </Button>
+                    </div>
+                  )}
+                  {mortgages.length > 0 && (
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 hover:bg-background transition-colors">
+                      <div className="w-8 h-8 rounded-full bg-destructive/20 flex items-center justify-center">
+                        <CreditCard className="h-4 w-4 text-destructive" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">
+                          {mortgages.length} active {mortgages.length === 1 ? "mortgage" : "mortgages"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Total balance: {formatCurrency(totals.totalMortgageBalance)}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigate("/properties")}
+                        className="transition-all hover:bg-destructive/10"
+                      >
+                        View All
+                      </Button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">No recent activity</p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Add properties or assets to see activity here
+                  </p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Quick Actions Grid */}
         <div>
           <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <BarChart3 className="h-5 w-5" />
+            <BarChart3 className="h-5 w-5 text-primary" />
             Quick Actions
           </h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
