@@ -10,8 +10,14 @@ node_modules/
 /dist
 /build
 
+# Lock files (use package-lock.json only)
+bun.lockb
+yarn.lock
+pnpm-lock.yaml
+
 # Misc
 .DS_Store
+Thumbs.db
 .env
 .env.local
 .env.development.local
@@ -35,10 +41,9 @@ lerna-debug.log*
 *.sln
 *.sw?
 
-# OS
-.DS_Store
-Thumbs.db
+# Claude
+.claude/
 
-
-
-
+# Documentation / requirements
+*.md
+!README.md
