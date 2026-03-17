@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
   FileText,
@@ -794,6 +793,39 @@ export default function GeneratePFS() {
     );
   }, [data, propertySearchQuery]);
 
+  // Live net worth display — mirrors handleGenerate calculation
+  const liveTotals = useMemo(() => {
+    const selectedProps = (data?.properties ?? []).filter(p => selectedProperties.has(p.id));
+    const totalAssets =
+      cashOnHand + cashOtherInstitutions +
+      scheduleA.reduce((s, i) => s + (i.amount || 0), 0) +
+      scheduleB.reduce((s, i) => s + (i.amount || 0), 0) +
+      buildingMaterialInventory +
+      scheduleC.reduce((s, i) => s + (i.totalValue || 0), 0) +
+      lifeInsuranceCashValue + retirementAccounts +
+      selectedProps.reduce((s, p) => s + p.currentValue * (p.ownershipPercentage / 100), 0) +
+      automobilesTrucks + machineryTools +
+      scheduleE.reduce((s, i) => s + (i.presentBalance || 0), 0) +
+      scheduleD.reduce((s, i) => s + (i.totalValue || 0), 0) +
+      otherAssetsValue;
+    const totalLiabilities =
+      scheduleG.reduce((s, i) => s + (i.amount || 0), 0) +
+      notesPayableRelatives +
+      scheduleH.reduce((s, i) => s + (i.amount || 0), 0) +
+      accruedInterest + accruedSalaryWages + accruedTaxesOther + incomeTaxPayable +
+      scheduleI.reduce((s, i) => s + (i.balance || 0), 0) +
+      selectedProps.reduce((s, prop) => {
+        const m = (data?.mortgages ?? []).find(m => m.propertyId === prop.id);
+        return s + (m?.principalBalance || 0);
+      }, 0) +
+      chattelMortgage + otherLiabilitiesValue;
+    return { totalAssets, totalLiabilities, netWorth: totalAssets - totalLiabilities };
+  }, [data, selectedProperties, cashOnHand, cashOtherInstitutions, buildingMaterialInventory,
+    lifeInsuranceCashValue, retirementAccounts, automobilesTrucks, machineryTools, otherAssetsValue,
+    notesPayableRelatives, accruedInterest, accruedSalaryWages, accruedTaxesOther, incomeTaxPayable,
+    chattelMortgage, otherLiabilitiesValue, scheduleA, scheduleB, scheduleC, scheduleD,
+    scheduleE, scheduleG, scheduleH, scheduleI]);
+
   // Select all/none handlers
   const handleSelectAll = () => {
     if (!data) return;
@@ -875,6 +907,15 @@ export default function GeneratePFS() {
       toast({
         title: "Template Required",
         description: "Please select a PDF template first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!borrowerName.trim()) {
+      toast({
+        title: "Borrower Name Required",
+        description: "Please enter the borrower name in the Personal Information section.",
         variant: "destructive",
       });
       return;
@@ -1142,6 +1183,30 @@ export default function GeneratePFS() {
   return (
     <Layout>
       <div className="space-y-6">
+        {/* Live net worth summary bar */}
+        <div className="grid grid-cols-3 gap-3">
+          <Card className="bg-card/60">
+            <CardContent className="pt-4 pb-4">
+              <p className="text-xs text-muted-foreground">Total Assets</p>
+              <p className="text-xl font-bold text-success">{formatCurrencyDisplay(liveTotals.totalAssets)}</p>
+            </CardContent>
+          </Card>
+          <Card className="bg-card/60">
+            <CardContent className="pt-4 pb-4">
+              <p className="text-xs text-muted-foreground">Total Liabilities</p>
+              <p className="text-xl font-bold text-destructive">{formatCurrencyDisplay(liveTotals.totalLiabilities)}</p>
+            </CardContent>
+          </Card>
+          <Card className={`bg-card/60 ${liveTotals.netWorth >= 0 ? "border-success/30" : "border-destructive/30"}`}>
+            <CardContent className="pt-4 pb-4">
+              <p className="text-xs text-muted-foreground">Net Worth</p>
+              <p className={`text-xl font-bold ${liveTotals.netWorth >= 0 ? "text-success" : "text-destructive"}`}>
+                {formatCurrencyDisplay(liveTotals.netWorth)}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Header */}
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
@@ -1201,17 +1266,9 @@ export default function GeneratePFS() {
           </Alert>
         )}
 
-        <Tabs defaultValue="properties" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="properties">Properties</TabsTrigger>
-            <TabsTrigger value="personal">Personal Info</TabsTrigger>
-            <TabsTrigger value="assets">Assets</TabsTrigger>
-            <TabsTrigger value="liabilities">Liabilities</TabsTrigger>
-            <TabsTrigger value="schedules">Schedules</TabsTrigger>
-          </TabsList>
-
-          {/* Properties Tab */}
-          <TabsContent value="properties" className="space-y-4">
+        {/* Properties */}
+        <div className="space-y-4">
+          <h2 className="text-base font-semibold">Properties</h2>
             <Card>
               <CardHeader>
                 <CardTitle>Select Properties</CardTitle>
@@ -1333,10 +1390,13 @@ export default function GeneratePFS() {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
+        </div>
 
-          {/* Personal Information Tab */}
-          <TabsContent value="personal" className="space-y-4">
+        <Separator />
+
+        {/* Personal Information */}
+        <div className="space-y-4">
+          <h2 className="text-base font-semibold">Personal Information</h2>
             <Card>
               <CardHeader>
                 <CardTitle>Personal Information</CardTitle>
@@ -1455,10 +1515,13 @@ export default function GeneratePFS() {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+        </div>
 
-          {/* Assets Tab */}
-          <TabsContent value="assets" className="space-y-4">
+        <Separator />
+
+        {/* Assets */}
+        <div className="space-y-4">
+          <h2 className="text-base font-semibold">Assets</h2>
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
@@ -1710,10 +1773,13 @@ export default function GeneratePFS() {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+        </div>
 
-          {/* Liabilities Tab */}
-          <TabsContent value="liabilities" className="space-y-4">
+        <Separator />
+
+        {/* Liabilities */}
+        <div className="space-y-4">
+          <h2 className="text-base font-semibold">Liabilities</h2>
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
@@ -2073,10 +2139,13 @@ export default function GeneratePFS() {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+        </div>
 
-          {/* Schedules Tab */}
-          <TabsContent value="schedules" className="space-y-4">
+        <Separator />
+
+        {/* Schedules A–I */}
+        <div className="space-y-4">
+          <h2 className="text-base font-semibold">Schedules A–I</h2>
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
@@ -2887,8 +2956,28 @@ export default function GeneratePFS() {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+        </div>
+
+        <div className="flex justify-end pb-6">
+          <Button
+            onClick={handleGenerate}
+            disabled={isGenerating || isLoadingTemplate}
+            size="lg"
+            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <FileText className="h-4 w-4" />
+                Generate PFS PDF
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </Layout>
   );

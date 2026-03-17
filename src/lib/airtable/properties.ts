@@ -2,6 +2,34 @@ import { getAirtableBase, TABLES } from "./client";
 import type { Property } from "@/types";
 import { markSnapshotsOutdated } from "@/lib/snapshots/snapshot-repository";
 
+function recordToProperty(record: { id: string; fields: Record<string, unknown> }): Property {
+  return {
+    id: record.id,
+    address: (record.fields.address as string) || "",
+    purchasePrice: (record.fields.purchase_price as number) || 0,
+    currentValue: (record.fields.current_value as number) || 0,
+    ownershipPercentage: (record.fields.ownership_percentage as number) || 100,
+    mortgageId: (record.fields.mortgage_id as string) || undefined,
+    notes: (record.fields.notes as string) || undefined,
+    totalUnits: (record.fields.total_units as number) || null,
+    occupiedUnits: (record.fields.occupied_units as number) || null,
+    monthlyRentalIncome: (record.fields.monthly_rental_income as number) || null,
+    monthlyPropertyTax: (record.fields.monthly_property_tax as number) || null,
+    monthlyInsurance: (record.fields.monthly_insurance as number) || null,
+    monthlyHOA: (record.fields.monthly_hoa as number) || null,
+    monthlyMaintenance: (record.fields.monthly_maintenance as number) || null,
+    monthlyPropertyManagement: (record.fields.monthly_property_management as number) || null,
+    monthlyUtilities: (record.fields.monthly_utilities as number) || null,
+    monthlyOtherExpenses: (record.fields.monthly_other_expenses as number) || null,
+    scheduleEDebtorName: (record.fields.schedule_e_debtor_name as string) || undefined,
+    scheduleEPaymentSchedule: (record.fields.schedule_e_payment_schedule as string) || undefined,
+    scheduleEAmountPastDue: (record.fields.schedule_e_amount_past_due as number) || undefined,
+    scheduleEOriginalBalance: (record.fields.schedule_e_original_balance as number) || undefined,
+    scheduleEPresentBalance: (record.fields.schedule_e_present_balance as number) || undefined,
+    scheduleEInterestRate: (record.fields.schedule_e_interest_rate as number) || undefined,
+  };
+}
+
 /**
  * Fetch all properties from Airtable
  */
@@ -18,21 +46,7 @@ export async function getProperties(): Promise<Property[]> {
       })
       .all();
 
-    return records.map((record) => ({
-      id: record.id,
-      address: (record.fields.address as string) || "",
-      purchasePrice: (record.fields.purchase_price as number) || 0,
-      currentValue: (record.fields.current_value as number) || 0,
-      ownershipPercentage: (record.fields.ownership_percentage as number) || 100,
-      mortgageId: (record.fields.mortgage_id as string) || undefined,
-      notes: (record.fields.notes as string) || undefined,
-      scheduleEDebtorName: (record.fields.schedule_e_debtor_name as string) || undefined,
-      scheduleEPaymentSchedule: (record.fields.schedule_e_payment_schedule as string) || undefined,
-      scheduleEAmountPastDue: (record.fields.schedule_e_amount_past_due as number) || undefined,
-      scheduleEOriginalBalance: (record.fields.schedule_e_original_balance as number) || undefined,
-      scheduleEPresentBalance: (record.fields.schedule_e_present_balance as number) || undefined,
-      scheduleEInterestRate: (record.fields.schedule_e_interest_rate as number) || undefined,
-    }));
+    return records.map((record) => recordToProperty(record as any));
   } catch (error) {
     console.error("Error fetching properties:", error);
     throw error;
@@ -50,21 +64,7 @@ export async function getProperty(id: string): Promise<Property | null> {
   
   try {
     const record = await base(TABLES.PROPERTIES).find(id);
-    return {
-      id: record.id,
-      address: (record.fields.address as string) || "",
-      purchasePrice: (record.fields.purchase_price as number) || 0,
-      currentValue: (record.fields.current_value as number) || 0,
-      ownershipPercentage: (record.fields.ownership_percentage as number) || 100,
-      mortgageId: (record.fields.mortgage_id as string) || undefined,
-      notes: (record.fields.notes as string) || undefined,
-      scheduleEDebtorName: (record.fields.schedule_e_debtor_name as string) || undefined,
-      scheduleEPaymentSchedule: (record.fields.schedule_e_payment_schedule as string) || undefined,
-      scheduleEAmountPastDue: (record.fields.schedule_e_amount_past_due as number) || undefined,
-      scheduleEOriginalBalance: (record.fields.schedule_e_original_balance as number) || undefined,
-      scheduleEPresentBalance: (record.fields.schedule_e_present_balance as number) || undefined,
-      scheduleEInterestRate: (record.fields.schedule_e_interest_rate as number) || undefined,
-    };
+    return recordToProperty(record as any);
   } catch (error) {
     console.error("Error fetching property:", error);
     return null;
@@ -96,21 +96,7 @@ export async function updatePropertyValue(
       // Don't fail the update if snapshot marking fails
     }
 
-    return {
-      id: record.id,
-      address: (record.fields.address as string) || "",
-      purchasePrice: (record.fields.purchase_price as number) || 0,
-      currentValue: (record.fields.current_value as number) || 0,
-      ownershipPercentage: (record.fields.ownership_percentage as number) || 100,
-      mortgageId: (record.fields.mortgage_id as string) || undefined,
-      notes: (record.fields.notes as string) || undefined,
-      scheduleEDebtorName: (record.fields.schedule_e_debtor_name as string) || undefined,
-      scheduleEPaymentSchedule: (record.fields.schedule_e_payment_schedule as string) || undefined,
-      scheduleEAmountPastDue: (record.fields.schedule_e_amount_past_due as number) || undefined,
-      scheduleEOriginalBalance: (record.fields.schedule_e_original_balance as number) || undefined,
-      scheduleEPresentBalance: (record.fields.schedule_e_present_balance as number) || undefined,
-      scheduleEInterestRate: (record.fields.schedule_e_interest_rate as number) || undefined,
-    };
+    return recordToProperty(record as any);
   } catch (error) {
     console.error("Error updating property value:", error);
     throw error;
@@ -143,6 +129,13 @@ export async function updateProperty(
     if (updates.scheduleEOriginalBalance !== undefined) fields.schedule_e_original_balance = updates.scheduleEOriginalBalance || null;
     if (updates.scheduleEPresentBalance !== undefined) fields.schedule_e_present_balance = updates.scheduleEPresentBalance || null;
     if (updates.scheduleEInterestRate !== undefined) fields.schedule_e_interest_rate = updates.scheduleEInterestRate || null;
+    if (updates.monthlyPropertyTax !== undefined) fields.monthly_property_tax = updates.monthlyPropertyTax ?? null;
+    if (updates.monthlyInsurance !== undefined) fields.monthly_insurance = updates.monthlyInsurance ?? null;
+    if (updates.monthlyHOA !== undefined) fields.monthly_hoa = updates.monthlyHOA ?? null;
+    if (updates.monthlyMaintenance !== undefined) fields.monthly_maintenance = updates.monthlyMaintenance ?? null;
+    if (updates.monthlyPropertyManagement !== undefined) fields.monthly_property_management = updates.monthlyPropertyManagement ?? null;
+    if (updates.monthlyUtilities !== undefined) fields.monthly_utilities = updates.monthlyUtilities ?? null;
+    if (updates.monthlyOtherExpenses !== undefined) fields.monthly_other_expenses = updates.monthlyOtherExpenses ?? null;
 
     const record = await base(TABLES.PROPERTIES).update(id, fields);
 
@@ -151,24 +144,9 @@ export async function updateProperty(
       await markSnapshotsOutdated(`Property updated: ${id}`);
     } catch (error) {
       console.error("Error marking snapshots outdated:", error);
-      // Don't fail the update if snapshot marking fails
     }
 
-    return {
-      id: record.id,
-      address: (record.fields.address as string) || "",
-      purchasePrice: (record.fields.purchase_price as number) || 0,
-      currentValue: (record.fields.current_value as number) || 0,
-      ownershipPercentage: (record.fields.ownership_percentage as number) || 100,
-      mortgageId: (record.fields.mortgage_id as string) || undefined,
-      notes: (record.fields.notes as string) || undefined,
-      scheduleEDebtorName: (record.fields.schedule_e_debtor_name as string) || undefined,
-      scheduleEPaymentSchedule: (record.fields.schedule_e_payment_schedule as string) || undefined,
-      scheduleEAmountPastDue: (record.fields.schedule_e_amount_past_due as number) || undefined,
-      scheduleEOriginalBalance: (record.fields.schedule_e_original_balance as number) || undefined,
-      scheduleEPresentBalance: (record.fields.schedule_e_present_balance as number) || undefined,
-      scheduleEInterestRate: (record.fields.schedule_e_interest_rate as number) || undefined,
-    };
+    return recordToProperty(record as any);
   } catch (error) {
     console.error("Error updating property:", error);
     throw error;
@@ -208,21 +186,7 @@ export async function createProperty(property: Omit<Property, "id">): Promise<Pr
       // Don't fail the create if snapshot marking fails
     }
 
-    return {
-      id: record.id,
-      address: (record.fields.address as string) || "",
-      purchasePrice: (record.fields.purchase_price as number) || 0,
-      currentValue: (record.fields.current_value as number) || 0,
-      ownershipPercentage: (record.fields.ownership_percentage as number) || 100,
-      mortgageId: (record.fields.mortgage_id as string) || undefined,
-      notes: (record.fields.notes as string) || undefined,
-      scheduleEDebtorName: (record.fields.schedule_e_debtor_name as string) || undefined,
-      scheduleEPaymentSchedule: (record.fields.schedule_e_payment_schedule as string) || undefined,
-      scheduleEAmountPastDue: (record.fields.schedule_e_amount_past_due as number) || undefined,
-      scheduleEOriginalBalance: (record.fields.schedule_e_original_balance as number) || undefined,
-      scheduleEPresentBalance: (record.fields.schedule_e_present_balance as number) || undefined,
-      scheduleEInterestRate: (record.fields.schedule_e_interest_rate as number) || undefined,
-    };
+    return recordToProperty(record as any);
   } catch (error) {
     console.error("Error creating property:", error);
     throw error;

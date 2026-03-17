@@ -1,283 +1,334 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/Layout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Search, Download, FileText, Building2, Users } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { ArrowLeft, Search, Download, Building2, Users, ChevronDown, ChevronUp, CheckSquare, Square } from "lucide-react";
 import { usePFSData } from "@/hooks/usePFSData";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/domain/utils";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { generatePropertyMockData } from "@/lib/mock-data/generators";
+import { generateRentRollPDF, downloadRentRollPDF, type RentRollUnit } from "@/lib/pdf/generators/rent-roll-generator";
 
-const formatCurrencyDisplay = (amount: number) => {
-  return formatCurrency(amount, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-};
+const fmt = (n: number) => formatCurrency(n, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+const statusColor = (status: string) =>
+  status === 'Current' ? 'text-success border-success/40' :
+  status === 'Past Due' ? 'text-destructive border-destructive/40' :
+  status === 'Vacant' ? 'text-muted-foreground border-muted-foreground/40' :
+  'text-warning border-warning/40';
 
 export default function GenerateRentRoll() {
   const navigate = useNavigate();
   const { data, isLoading, error } = usePFSData();
-  const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
+  const { toast } = useToast();
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [generating, setGenerating] = useState(false);
+  const [asOfDate, setAsOfDate] = useState(() => new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }));
+  const [portfolioName, setPortfolioName] = useState("164 Investments");
 
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="space-y-6">
-          <Skeleton className="h-9 w-48 mb-2" />
-          <Skeleton className="h-64" />
-        </div>
-      </Layout>
-    );
-  }
+  const properties = data?.properties ?? [];
 
-  if (error) {
-    return (
-      <Layout>
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error Loading Data</AlertTitle>
-          <AlertDescription>
-            {error instanceof Error
-              ? error.message
-              : "Failed to load properties. Please check your Airtable configuration."}
-          </AlertDescription>
-        </Alert>
-      </Layout>
-    );
-  }
-
-  if (!data) {
-    return (
-      <Layout>
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>No Data Available</AlertTitle>
-          <AlertDescription>
-            Please configure Airtable or add properties to your base.
-          </AlertDescription>
-        </Alert>
-      </Layout>
-    );
-  }
-
-  const { properties } = data;
-
-  // Filter properties by search query
-  const filteredProperties = properties.filter((property) =>
-    property.address.toLowerCase().includes(searchQuery.toLowerCase())
+  const propertiesWithUnits = useMemo(
+    () => properties.filter(p => (p.totalUnits ?? 0) > 0),
+    [properties]
   );
 
-  // Properties with units (for rent roll)
-  const propertiesWithUnits = filteredProperties.filter(
-    (p) => p.totalUnits && p.totalUnits > 0
+  const filteredProperties = useMemo(
+    () => propertiesWithUnits.filter(p => p.address.toLowerCase().includes(searchQuery.toLowerCase())),
+    [propertiesWithUnits, searchQuery]
   );
 
-  // Toggle property selection
-  const toggleProperty = (propertyId: string) => {
-    setSelectedProperties((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(propertyId)) {
-        newSet.delete(propertyId);
-      } else {
-        newSet.add(propertyId);
-      }
-      return newSet;
+  // Generate mock unit data for each property (deterministic seeding)
+  const propertyMockData = useMemo(() => {
+    const cache: Record<string, ReturnType<typeof generatePropertyMockData>> = {};
+    for (const p of propertiesWithUnits) {
+      cache[p.id] = generatePropertyMockData(p);
+    }
+    return cache;
+  }, [propertiesWithUnits]);
+
+  const toggleProperty = (id: string) => {
+    setSelectedIds(prev => {
+      const s = new Set(prev);
+      if (s.has(id)) s.delete(id); else s.add(id);
+      return s;
     });
   };
 
-  // Select all / Deselect all
+  const toggleExpanded = (id: string) => {
+    setExpandedIds(prev => {
+      const s = new Set(prev);
+      if (s.has(id)) s.delete(id); else s.add(id);
+      return s;
+    });
+  };
+
   const toggleAll = () => {
-    if (selectedProperties.size === propertiesWithUnits.length) {
-      setSelectedProperties(new Set());
+    if (selectedIds.size === filteredProperties.length) {
+      setSelectedIds(new Set());
     } else {
-      setSelectedProperties(new Set(propertiesWithUnits.map((p) => p.id)));
+      setSelectedIds(new Set(filteredProperties.map(p => p.id)));
     }
   };
 
-  // Calculate totals for selected properties
-  const selectedPropertiesData = properties.filter((p) => selectedProperties.has(p.id));
+  const selectedData = properties.filter(p => selectedIds.has(p.id));
   const totals = {
-    totalProperties: selectedPropertiesData.length,
-    totalUnits: selectedPropertiesData.reduce((sum, p) => sum + (p.totalUnits || 0), 0),
-    occupiedUnits: selectedPropertiesData.reduce((sum, p) => sum + (p.occupiedUnits || 0), 0),
-    monthlyIncome: selectedPropertiesData.reduce((sum, p) => sum + (p.monthlyRentalIncome || 0), 0),
+    units: selectedData.reduce((s, p) => s + (p.totalUnits || 0), 0),
+    occupied: selectedData.reduce((s, p) => s + (p.occupiedUnits || 0), 0),
+    monthlyIncome: selectedData.reduce((s, p) => s + (p.monthlyRentalIncome || 0), 0),
   };
-  const occupancyRate = totals.totalUnits > 0 
-    ? (totals.occupiedUnits / totals.totalUnits) * 100 
-    : 0;
+  const occupancyRate = totals.units > 0 ? (totals.occupied / totals.units) * 100 : 0;
 
-  const handleGenerate = () => {
-    // TODO: Implement PDF generation
-    console.log("Generating rent roll for properties:", Array.from(selectedProperties));
-    // This will be implemented when PDF template is ready
+  const handleGenerate = async () => {
+    if (selectedIds.size === 0) {
+      toast({ title: "No properties selected", description: "Select at least one property.", variant: "destructive" });
+      return;
+    }
+    setGenerating(true);
+    try {
+      const rentRollProperties = selectedData.map(prop => {
+        const mockData = propertyMockData[prop.id];
+        const units: RentRollUnit[] = mockData?.units.map((unit, i) => {
+          const lease = mockData.leases.find(l => l.unitId === unit.id);
+          const tenant = lease ? mockData.tenants.find(t => t.id === lease.tenantId) : null;
+          return {
+            unitNumber: unit.unitNumber,
+            unitType: unit.unitType,
+            squareFootage: unit.squareFootage,
+            tenantName: tenant ? `${tenant.firstName} ${tenant.lastName}` : '',
+            leaseStart: lease?.startDate ?? '',
+            leaseEnd: lease?.endDate ?? '',
+            marketRent: unit.marketRent,
+            actualRent: lease?.monthlyRent ?? 0,
+            status: !lease ? 'Vacant' : lease.isPastDue ? 'Past Due' : 'Current',
+            notes: '',
+          } as RentRollUnit;
+        }) ?? [];
+
+        return {
+          address: prop.address,
+          ownershipPercentage: prop.ownershipPercentage || 100,
+          units,
+        };
+      });
+
+      const pdfBytes = await generateRentRollPDF({ portfolioName, asOfDate, properties: rentRollProperties });
+      downloadRentRollPDF(pdfBytes, portfolioName);
+      toast({ title: "Rent Roll Generated", description: `Downloaded rent roll for ${selectedIds.size} propert${selectedIds.size === 1 ? 'y' : 'ies'}.` });
+    } catch (err) {
+      toast({ title: "Generation failed", description: String(err), variant: "destructive" });
+    } finally {
+      setGenerating(false);
+    }
   };
+
+  if (isLoading) return <Layout><div className="space-y-4"><Skeleton className="h-10 w-64" /><Skeleton className="h-64" /></div></Layout>;
+  if (error) return <Layout><Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertTitle>Error</AlertTitle><AlertDescription>{String(error)}</AlertDescription></Alert></Layout>;
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="max-w-5xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/documents")}
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
+        <div>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/documents")} className="h-8 px-2 -ml-2 mb-2 text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Documents
+          </Button>
+          <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                Generate Rent Roll
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                Select properties to include in the rent roll document
-              </p>
+              <h1 className="text-2xl font-bold tracking-tight">Generate Rent Roll</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">Select properties to include in the rent roll document</p>
             </div>
+            <Button onClick={handleGenerate} disabled={generating || selectedIds.size === 0} size="lg">
+              <Download className="h-4 w-4 mr-2" />
+              {generating ? "Generating…" : "Generate Rent Roll PDF"}
+            </Button>
           </div>
         </div>
 
-        {/* Summary Card */}
-        {selectedProperties.size > 0 && (
-          <Card className="bg-primary/5 border-primary/20">
-            <CardHeader>
-              <CardTitle>Selected Properties Summary</CardTitle>
-              <CardDescription>
-                Totals for {selectedProperties.size} propert{selectedProperties.size === 1 ? 'y' : 'ies'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+        {/* Document settings */}
+        <Card>
+          <CardContent className="pt-5">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label>Portfolio Name</Label>
+                <Input value={portfolioName} onChange={e => setPortfolioName(e.target.value)} placeholder="164 Investments" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>As-of Date</Label>
+                <Input value={asOfDate} onChange={e => setAsOfDate(e.target.value)} placeholder="March 15, 2026" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Summary (when properties selected) */}
+        {selectedIds.size > 0 && (
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="pt-4 pb-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Units</p>
-                  <p className="text-2xl font-bold">{totals.totalUnits}</p>
+                  <p className="text-xs text-muted-foreground">Selected Properties</p>
+                  <p className="text-xl font-bold">{selectedIds.size}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Occupied Units</p>
-                  <p className="text-2xl font-bold text-success">{totals.occupiedUnits}</p>
+                  <p className="text-xs text-muted-foreground">Total Units</p>
+                  <p className="text-xl font-bold">{totals.units}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Occupancy Rate</p>
-                  <p className="text-2xl font-bold">{occupancyRate.toFixed(1)}%</p>
+                  <p className="text-xs text-muted-foreground">Occupancy</p>
+                  <p className="text-xl font-bold">{occupancyRate.toFixed(1)}%</p>
+                  <p className="text-xs text-muted-foreground">{totals.occupied}/{totals.units} occupied</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Monthly Income</p>
-                  <p className="text-2xl font-bold">{formatCurrencyDisplay(totals.monthlyIncome)}</p>
+                  <p className="text-xs text-muted-foreground">Monthly Income</p>
+                  <p className="text-xl font-bold text-success">{fmt(totals.monthlyIncome)}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         )}
 
-        {/* Search and Select All */}
-        <div className="flex items-center gap-4">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search properties..."
-              className="pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+        {/* Mock data disclaimer */}
+        <Alert className="border-warning/40 bg-warning/5">
+          <AlertCircle className="h-4 w-4 text-warning" />
+          <AlertTitle className="text-warning text-sm">Illustrative Data</AlertTitle>
+          <AlertDescription className="text-sm">
+            Unit, tenant, and lease data below is generated for layout preview only. Replace with actual tenant records before submitting to lenders.
+          </AlertDescription>
+        </Alert>
+
+        {/* Search + select controls */}
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1 max-w-xs">
+            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input placeholder="Search properties…" className="pl-8 h-9" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
           </div>
-          {propertiesWithUnits.length > 0 && (
-            <Button variant="outline" onClick={toggleAll}>
-              {selectedProperties.size === propertiesWithUnits.length ? "Deselect All" : "Select All"}
+          {filteredProperties.length > 0 && (
+            <Button variant="outline" size="sm" onClick={toggleAll}>
+              {selectedIds.size === filteredProperties.length
+                ? <><CheckSquare className="h-3.5 w-3.5 mr-1.5" />Deselect All</>
+                : <><Square className="h-3.5 w-3.5 mr-1.5" />Select All</>}
             </Button>
           )}
         </div>
 
-        {/* Properties List */}
-        {propertiesWithUnits.length === 0 ? (
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center py-12">
-                <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground mb-4">
-                  {searchQuery
-                    ? "No properties with units match your search."
-                    : "No properties with units found. Add units to properties to generate rent rolls."}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Properties list */}
+        {filteredProperties.length === 0 ? (
+          <Card><CardContent className="py-12 text-center">
+            <Building2 className="h-10 w-10 mx-auto text-muted-foreground mb-3 opacity-50" />
+            <p className="text-sm text-muted-foreground">No multi-unit properties found. Add units to properties to generate rent rolls.</p>
+          </CardContent></Card>
         ) : (
           <div className="space-y-3">
-            {propertiesWithUnits.map((property) => {
-              const isSelected = selectedProperties.has(property.id);
-              const occupancyRate = property.totalUnits && property.totalUnits > 0
+            {filteredProperties.map(property => {
+              const isSelected = selectedIds.has(property.id);
+              const isExpanded = expandedIds.has(property.id);
+              const mockData = propertyMockData[property.id];
+              const occRate = property.totalUnits && property.totalUnits > 0
                 ? ((property.occupiedUnits || 0) / property.totalUnits) * 100
                 : 0;
 
               return (
-                <Card
-                  key={property.id}
-                  className={`transition-all hover:shadow-md ${
-                    isSelected ? "ring-2 ring-primary" : ""
-                  }`}
-                >
-                  <CardContent className="pt-6">
-                    <div className="flex items-start gap-4">
-                      <Checkbox
-                        checked={isSelected}
-                        onCheckedChange={() => toggleProperty(property.id)}
-                        className="mt-1"
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <h3 className="font-semibold text-lg">{property.address}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              {property.ownershipPercentage}% Ownership
-                            </p>
+                <Card key={property.id} className={`transition-all ${isSelected ? "ring-2 ring-primary" : ""}`}>
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex items-start gap-3">
+                      <Checkbox checked={isSelected} onCheckedChange={() => toggleProperty(property.id)} className="mt-1 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        {/* Property header row */}
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <h3 className="font-semibold truncate">{property.address}</h3>
+                            <p className="text-xs text-muted-foreground">{property.ownershipPercentage}% ownership</p>
                           </div>
-                          <div className="flex items-center gap-2">
-                            {occupancyRate > 0 && (
-                              <Badge
-                                variant={occupancyRate >= 90 ? "default" : occupancyRate >= 75 ? "secondary" : "destructive"}
-                                className="flex items-center gap-1"
-                              >
-                                <Users className="h-3 w-3" />
-                                {occupancyRate.toFixed(0)}%
-                              </Badge>
-                            )}
+                          <div className="flex items-center gap-2 shrink-0">
+                            <Badge variant="outline" className={`text-xs ${occRate >= 90 ? "text-success border-success/40" : occRate >= 75 ? "text-warning border-warning/40" : "text-destructive border-destructive/40"}`}>
+                              <Users className="h-3 w-3 mr-0.5" />{occRate.toFixed(0)}%
+                            </Badge>
+                            <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={() => toggleExpanded(property.id)}>
+                              {isExpanded ? <><ChevronUp className="h-3.5 w-3.5" />Hide units</> : <><ChevronDown className="h-3.5 w-3.5" />Show units</>}
+                            </Button>
                           </div>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+
+                        {/* Summary stats */}
+                        <div className="grid grid-cols-3 gap-4 mt-3">
                           <div>
                             <p className="text-xs text-muted-foreground">Units</p>
-                            <p className="font-semibold">
-                              {property.occupiedUnits || 0}/{property.totalUnits} occupied
-                            </p>
+                            <p className="text-sm font-semibold">{property.occupiedUnits || 0}/{property.totalUnits} occupied</p>
                           </div>
                           <div>
                             <p className="text-xs text-muted-foreground">Monthly Income</p>
-                            <p className="font-semibold">
-                              {property.monthlyRentalIncome
-                                ? formatCurrencyDisplay(property.monthlyRentalIncome)
-                                : "—"}
-                            </p>
+                            <p className="text-sm font-semibold">{property.monthlyRentalIncome ? fmt(property.monthlyRentalIncome) : "—"}</p>
                           </div>
                           <div>
                             <p className="text-xs text-muted-foreground">Current Value</p>
-                            <p className="font-semibold">
-                              {formatCurrencyDisplay(property.currentValue)}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground">Equity</p>
-                            <p className="font-semibold text-success">
-                              {formatCurrencyDisplay(
-                                property.currentValue * (property.ownershipPercentage / 100) -
-                                (property.mortgageId ? 0 : 0) // TODO: Calculate actual equity
-                              )}
-                            </p>
+                            <p className="text-sm font-semibold">{fmt(property.currentValue)}</p>
                           </div>
                         </div>
+
+                        {/* Unit detail table */}
+                        {isExpanded && mockData && (
+                          <>
+                            <Separator className="my-3" />
+                            <div className="overflow-x-auto">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead className="text-xs w-14">Unit</TableHead>
+                                    <TableHead className="text-xs">Type</TableHead>
+                                    <TableHead className="text-xs">Sq Ft</TableHead>
+                                    <TableHead className="text-xs">Tenant</TableHead>
+                                    <TableHead className="text-xs">Lease Start</TableHead>
+                                    <TableHead className="text-xs">Lease End</TableHead>
+                                    <TableHead className="text-xs text-right">Market Rent</TableHead>
+                                    <TableHead className="text-xs text-right">Actual Rent</TableHead>
+                                    <TableHead className="text-xs">Status</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {mockData.units.map(unit => {
+                                    const lease = mockData.leases.find(l => l.unitId === unit.id);
+                                    const tenant = lease ? mockData.tenants.find(t => t.id === lease.tenantId) : null;
+                                    const status = !lease ? 'Vacant' : lease.isPastDue ? 'Past Due' : 'Current';
+                                    const fmtD = (iso: string) => {
+                                      if (!iso) return '—';
+                                      const d = new Date(iso);
+                                      return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear().toString().slice(-2)}`;
+                                    };
+                                    return (
+                                      <TableRow key={unit.id} className="text-xs">
+                                        <TableCell className="font-mono">{unit.unitNumber}</TableCell>
+                                        <TableCell>{unit.unitType}</TableCell>
+                                        <TableCell>{unit.squareFootage.toLocaleString()}</TableCell>
+                                        <TableCell>{tenant ? `${tenant.firstName} ${tenant.lastName}` : <span className="text-muted-foreground italic">Vacant</span>}</TableCell>
+                                        <TableCell>{lease ? fmtD(lease.startDate) : '—'}</TableCell>
+                                        <TableCell>{lease ? fmtD(lease.endDate) : '—'}</TableCell>
+                                        <TableCell className="text-right">{fmt(unit.marketRent)}</TableCell>
+                                        <TableCell className="text-right">{lease ? fmt(lease.monthlyRent) : '—'}</TableCell>
+                                        <TableCell>
+                                          <Badge variant="outline" className={`text-xs px-1.5 py-0 ${statusColor(status)}`}>{status}</Badge>
+                                        </TableCell>
+                                      </TableRow>
+                                    );
+                                  })}
+                                </TableBody>
+                              </Table>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -287,31 +338,13 @@ export default function GenerateRentRoll() {
           </div>
         )}
 
-        {/* Generate Button */}
-        {selectedProperties.size > 0 && (
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-semibold">
-                    {selectedProperties.size} propert{selectedProperties.size === 1 ? 'y' : 'ies'} selected
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Total monthly income: {formatCurrencyDisplay(totals.monthlyIncome)}
-                  </p>
-                </div>
-                <Button
-                  onClick={handleGenerate}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90"
-                  size="lg"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Generate Rent Roll PDF
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* Bottom generate */}
+        <div className="flex justify-end pb-4">
+          <Button onClick={handleGenerate} disabled={generating || selectedIds.size === 0} size="lg" className="gap-2">
+            <Download className="h-4 w-4" />
+            {generating ? "Generating PDF…" : `Generate Rent Roll PDF`}
+          </Button>
+        </div>
       </div>
     </Layout>
   );

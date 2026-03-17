@@ -1,605 +1,418 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/Layout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Download, Building2, Search, CheckSquare, Square, ChevronRight, ChevronLeft, Check, X, Calculator } from "lucide-react";
+import { ArrowLeft, Download, Building2, Search, ChevronDown, ChevronUp, CheckSquare, Square } from "lucide-react";
 import { usePFSData } from "@/hooks/usePFSData";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/domain/utils";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { generatePropertyMockData } from "@/lib/mock-data/generators";
+import { generateScheduleEPDF, downloadScheduleEPDF, type ScheduleEProperty } from "@/lib/pdf/generators/schedule-e-generator";
 
-const formatCurrencyDisplay = (amount: number) => {
-  return formatCurrency(amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-};
+const fmt = (n: number) => formatCurrency(n, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+const EXPENSE_FIELDS: Array<{ key: keyof ScheduleEProperty; label: string; lineNo: number }> = [
+  { key: 'advertising', label: 'Advertising', lineNo: 5 },
+  { key: 'autoAndTravel', label: 'Auto and travel', lineNo: 6 },
+  { key: 'cleaningAndMaintenance', label: 'Cleaning and maintenance', lineNo: 7 },
+  { key: 'commissions', label: 'Commissions', lineNo: 8 },
+  { key: 'insurance', label: 'Insurance', lineNo: 9 },
+  { key: 'legalAndProfessional', label: 'Legal and professional fees', lineNo: 10 },
+  { key: 'managementFees', label: 'Management fees', lineNo: 11 },
+  { key: 'mortgageInterest', label: 'Mortgage interest (banks)', lineNo: 12 },
+  { key: 'otherInterest', label: 'Other interest', lineNo: 13 },
+  { key: 'repairs', label: 'Repairs', lineNo: 14 },
+  { key: 'supplies', label: 'Supplies', lineNo: 15 },
+  { key: 'taxes', label: 'Taxes', lineNo: 16 },
+  { key: 'utilities', label: 'Utilities', lineNo: 17 },
+  { key: 'depreciation', label: 'Depreciation expense (auto)', lineNo: 18 },
+  { key: 'other', label: 'Other expenses', lineNo: 19 },
+];
+
+function calcDepreciation(purchasePrice: number, propertyType: 'Residential' | 'Commercial') {
+  const years = propertyType === 'Residential' ? 27.5 : 39;
+  const landValue = purchasePrice * 0.2;
+  return (purchasePrice - landValue) / years;
+}
+
+function calcTotalExpenses(p: ScheduleEProperty) {
+  return EXPENSE_FIELDS.reduce((s, f) => s + (p[f.key] as number || 0), 0);
+}
+
+interface PropertyExpenses {
+  propertyId: string;
+  data: ScheduleEProperty;
+  expanded: boolean;
+}
 
 export default function GenerateScheduleE() {
   const navigate = useNavigate();
   const { data, isLoading, error } = usePFSData();
   const { toast } = useToast();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [visitedSteps, setVisitedSteps] = useState<Set<number>>(new Set([1]));
-  const totalSteps = 3;
-  const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [taxYear, setTaxYear] = useState(2026);
-  
-  // Check if a step is completed
-  const isStepCompleted = (step: number): boolean => {
-    // Only check completion for steps that have been visited
-    if (!visitedSteps.has(step)) {
-      return false;
-    }
-    
-    switch (step) {
-      case 1:
-        return selectedProperties.size > 0;
-      case 2:
-        return selectedProperties.size > 0; // Must have selected properties
-      case 3:
-        return selectedProperties.size > 0; // Must have selected properties
-      default:
-        return false;
-    }
-  };
+  const [taxpayerName, setTaxpayerName] = useState("");
+  const [taxpayerSSN, setTaxpayerSSN] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const [propertyExpenses, setPropertyExpenses] = useState<Record<string, PropertyExpenses>>({});
 
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="space-y-6">
-          <Skeleton className="h-9 w-48 mb-2" />
-          <Skeleton className="h-64" />
-        </div>
-      </Layout>
-    );
-  }
+  const properties = data?.properties ?? [];
 
-  if (error) {
-    return (
-      <Layout>
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error Loading Data</AlertTitle>
-          <AlertDescription>
-            {error instanceof Error
-              ? error.message
-              : "Failed to load properties. Please check your configuration."}
-          </AlertDescription>
-        </Alert>
-      </Layout>
-    );
-  }
-
-  if (!data) {
-    return (
-      <Layout>
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>No Data Available</AlertTitle>
-          <AlertDescription>
-            Please add properties to generate Schedule E.
-          </AlertDescription>
-        </Alert>
-      </Layout>
-    );
-  }
-
-  const { properties } = data;
-
-  // Enrich properties with calculated values if missing monthlyRentalIncome
-  const enrichedProperties = useMemo(() => {
-    return properties.map(property => {
-      // If property doesn't have monthlyRentalIncome, calculate from mock data
-      if (!property.monthlyRentalIncome) {
-        // Generate mock data to get realistic values
-        const mockData = generatePropertyMockData(property);
-        return {
-          ...property,
-          monthlyRentalIncome: mockData.totals.monthlyRentalIncome || property.currentValue * 0.0083, // 1% annual / 12
-          monthlyExpenses: property.monthlyExpenses || (mockData.totals.monthlyRentalIncome * 0.3) || (property.currentValue * 0.0025), // 30% expense ratio
-        };
-      }
-      return {
-        ...property,
-        monthlyExpenses: property.monthlyExpenses || (property.monthlyRentalIncome * 0.3), // Default 30% expense ratio
-      };
-    });
-  }, [properties]);
-
-  // Filter properties by search query
-  const filteredProperties = enrichedProperties.filter((property) =>
-    property.address.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredProperties = useMemo(
+    () => properties.filter(p => p.address.toLowerCase().includes(searchQuery.toLowerCase())),
+    [properties, searchQuery]
   );
 
-  // Toggle property selection
-  const toggleProperty = (propertyId: string) => {
-    setSelectedProperties((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(propertyId)) {
-        newSet.delete(propertyId);
-      } else {
-        newSet.add(propertyId);
-      }
-      return newSet;
+  const getExpenses = useCallback((propId: string): PropertyExpenses => {
+    if (propertyExpenses[propId]) return propertyExpenses[propId];
+    const prop = properties.find(p => p.id === propId);
+    if (!prop) return { propertyId: propId, expanded: false, data: {} as ScheduleEProperty };
+    const annualRent = (prop.monthlyRentalIncome || 0) * 12;
+    const depr = calcDepreciation(prop.purchasePrice || 0, 'Residential');
+
+    // Auto-populate mortgage interest from linked mortgages (annual interest = principalBalance × interestRate / 100)
+    const propertyMortgages = (data?.mortgages ?? []).filter(m => m.propertyId === propId);
+    const mortgageInterest = Math.round(
+      propertyMortgages.reduce((sum, m) => sum + (m.principalBalance * m.interestRate) / 100, 0)
+    );
+
+    return {
+      propertyId: propId,
+      expanded: false,
+      data: {
+        address: prop.address,
+        propertyType: 'Residential',
+        purchasePrice: prop.purchasePrice || 0,
+        rentsReceived: annualRent,
+        advertising: 0,
+        autoAndTravel: 0,
+        cleaningAndMaintenance: (prop.monthlyMaintenance || 0) * 12,
+        commissions: 0,
+        insurance: (prop.monthlyInsurance || 0) * 12,
+        legalAndProfessional: 0,
+        managementFees: (prop.monthlyPropertyManagement || 0) * 12,
+        mortgageInterest,
+        otherInterest: 0,
+        repairs: 0,
+        supplies: 0,
+        taxes: (prop.monthlyPropertyTax || 0) * 12,
+        utilities: (prop.monthlyUtilities || 0) * 12,
+        depreciation: Math.round(depr),
+        other: ((prop.monthlyHOA || 0) + (prop.monthlyOtherExpenses || 0)) * 12,
+      },
+    };
+  }, [properties, propertyExpenses, data?.mortgages]);
+
+  const updateExpense = (propId: string, field: keyof ScheduleEProperty, value: number | string) => {
+    const current = getExpenses(propId);
+    setPropertyExpenses(prev => ({
+      ...prev,
+      [propId]: { ...current, data: { ...current.data, [field]: typeof value === 'string' ? parseFloat(value) || 0 : value } },
+    }));
+  };
+
+  const toggleExpanded = (propId: string) => {
+    const current = getExpenses(propId);
+    setPropertyExpenses(prev => ({ ...prev, [propId]: { ...current, expanded: !current.expanded } }));
+  };
+
+  const toggleProperty = (id: string) => {
+    setSelectedIds(prev => {
+      const s = new Set(prev);
+      if (s.has(id)) s.delete(id); else { s.add(id); if (!propertyExpenses[id]) { const ex = getExpenses(id); setPropertyExpenses(p => ({ ...p, [id]: ex })); } }
+      return s;
     });
   };
 
-  // Select all / Deselect all
   const toggleAll = () => {
-    if (selectedProperties.size === filteredProperties.length) {
-      setSelectedProperties(new Set());
+    if (selectedIds.size === filteredProperties.length) {
+      setSelectedIds(new Set());
     } else {
-      setSelectedProperties(new Set(filteredProperties.map((p) => p.id)));
+      const newIds = new Set(filteredProperties.map(p => p.id));
+      const newExpenses: Record<string, PropertyExpenses> = { ...propertyExpenses };
+      for (const id of newIds) { if (!newExpenses[id]) newExpenses[id] = getExpenses(id); }
+      setPropertyExpenses(newExpenses);
+      setSelectedIds(newIds);
     }
   };
 
-  // Calculate Schedule E values for each selected property
-  const scheduleEData = enrichedProperties
-    .filter((p) => selectedProperties.has(p.id))
-    .map((property) => {
-      const monthlyRentalIncome = property.monthlyRentalIncome || 0;
-      const monthlyExpenses = property.monthlyExpenses || 0;
-      
-      const annualRentalIncome = monthlyRentalIncome * 12;
-      const annualExpenses = monthlyExpenses * 12;
-      
-      // Depreciation (simplified - typically 27.5 years for residential, 39 years for commercial)
-      const propertyType = "Residential"; // TODO: Get from property
-      const depreciationPeriod = propertyType === "Residential" ? 27.5 : 39;
-      const depreciableBasis = property.purchasePrice || 0;
-      const landValue = depreciableBasis * 0.2; // Assume 20% is land (not depreciable)
-      const buildingValue = depreciableBasis - landValue;
-      const depreciation = buildingValue / depreciationPeriod;
-      const netIncome = annualRentalIncome - annualExpenses - depreciation;
-      
-      return {
-        property,
-        propertyAddress: property.address,
-        rentalIncome: annualRentalIncome,
-        expenses: annualExpenses,
-        depreciation,
-        netIncome,
-      };
-    });
+  const selectedExpenses = Array.from(selectedIds).map(id => getExpenses(id)).filter(Boolean);
 
   const totals = {
-    totalRentalIncome: scheduleEData.reduce((sum, p) => sum + p.rentalIncome, 0),
-    totalExpenses: scheduleEData.reduce((sum, p) => sum + p.expenses, 0),
-    totalDepreciation: scheduleEData.reduce((sum, p) => sum + p.depreciation, 0),
-    totalNetIncome: scheduleEData.reduce((sum, p) => sum + p.netIncome, 0),
+    income: selectedExpenses.reduce((s, e) => s + (e.data.rentsReceived || 0), 0),
+    expenses: selectedExpenses.reduce((s, e) => s + calcTotalExpenses(e.data), 0),
+    depreciation: selectedExpenses.reduce((s, e) => s + (e.data.depreciation || 0), 0),
+    net: selectedExpenses.reduce((s, e) => s + ((e.data.rentsReceived || 0) - calcTotalExpenses(e.data)), 0),
   };
 
-  const handleGenerate = () => {
-    if (selectedProperties.size === 0) {
-      toast({
-        title: "No Properties Selected",
-        description: "Please select at least one property to generate Schedule E.",
-        variant: "destructive",
-      });
+  const handleGenerate = async () => {
+    if (selectedIds.size === 0) {
+      toast({ title: "No properties selected", description: "Select at least one property.", variant: "destructive" });
       return;
     }
-
-    // TODO: Generate PDF
-    console.log("Generating Schedule E PDF for properties:", Array.from(selectedProperties));
-    toast({
-      title: "Schedule E Generated",
-      description: "Schedule E PDF has been generated successfully.",
-    });
-  };
-
-  const nextStep = () => {
-    if (currentStep < totalSteps) {
-      setVisitedSteps(prev => new Set([...prev, currentStep + 1]));
-      setCurrentStep(currentStep + 1);
+    setGenerating(true);
+    try {
+      const pdfData = {
+        taxYear, taxpayerName, taxpayerSSN,
+        properties: selectedExpenses.map(e => e.data),
+      };
+      const pdfBytes = await generateScheduleEPDF(pdfData);
+      downloadScheduleEPDF(pdfBytes, taxYear);
+      toast({ title: "Schedule E Generated", description: `Downloaded Schedule E for ${selectedIds.size} propert${selectedIds.size === 1 ? 'y' : 'ies'}.` });
+    } catch (err) {
+      toast({ title: "Generation failed", description: String(err), variant: "destructive" });
+    } finally {
+      setGenerating(false);
     }
   };
 
-  const prevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
+  if (isLoading) return <Layout><div className="space-y-4"><Skeleton className="h-10 w-64" /><Skeleton className="h-64" /></div></Layout>;
+  if (error) return <Layout><Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertTitle>Error</AlertTitle><AlertDescription>{String(error)}</AlertDescription></Alert></Layout>;
 
   return (
     <Layout>
-      <div className="space-y-6 max-w-6xl mx-auto">
+      <div className="max-w-5xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate("/documents")}
-            className="transition-all hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0"
-          >
-            <ArrowLeft className="h-4 w-4" />
+        <div>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/documents")} className="h-8 px-2 -ml-2 mb-2 text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Documents
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              Generate Schedule E (Rental Income)
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              IRS Schedule E for Tax Year {taxYear}
-            </p>
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">Generate Schedule E</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">IRS Schedule E (Form 1040) — Supplemental Income and Loss · Tax Year {taxYear}</p>
+            </div>
+            <Button onClick={handleGenerate} disabled={generating || selectedIds.size === 0} size="lg">
+              <Download className="h-4 w-4 mr-2" />
+              {generating ? "Generating…" : "Generate Schedule E PDF"}
+            </Button>
           </div>
         </div>
 
-        {/* Step Progress */}
-        <Card className="transition-all hover:shadow-md">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-center">
-              <div className="flex items-center gap-0">
-                {[1, 2, 3].map((step, index) => {
-                  const isCompleted = isStepCompleted(step);
-                  const wasVisited = visitedSteps.has(step);
-                  const isCurrent = step === currentStep;
-                  
-                  return (
-                    <div key={step} className="flex items-center">
-                      <div className="flex flex-col items-center">
-                        <div
-                          className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold transition-all duration-300 ${
-                            isCurrent
-                              ? "bg-primary text-primary-foreground scale-110 shadow-lg"
-                              : isCompleted
-                              ? "bg-success text-success-foreground"
-                              : wasVisited && !isCompleted
-                              ? "bg-destructive text-destructive-foreground"
-                              : "bg-muted text-muted-foreground"
-                          }`}
-                        >
-                          {isCompleted ? (
-                            <Check className="h-5 w-5" />
-                          ) : wasVisited && !isCompleted ? (
-                            <X className="h-5 w-5" />
-                          ) : (
-                            step
-                          )}
-                        </div>
-                        <p className="text-xs mt-2 text-center text-muted-foreground w-24">
-                          {step === 1 && "Select Properties"}
-                          {step === 2 && "Review Details"}
-                          {step === 3 && "Generate"}
-                        </p>
-                      </div>
-                      {index < 2 && (
-                        <div
-                          className={`h-1 w-24 mx-6 transition-all duration-300 ${
-                            isCompleted ? "bg-success" : "bg-muted"
-                          }`}
-                        />
-                      )}
-                    </div>
-                  );
-                })}
+        {/* Taxpayer + Tax Year */}
+        <Card>
+          <CardContent className="pt-5">
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="space-y-1.5">
+                <Label>Tax Year</Label>
+                <Input type="number" value={taxYear} onChange={e => setTaxYear(parseInt(e.target.value) || 2026)} className="w-28" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Taxpayer Name</Label>
+                <Input value={taxpayerName} onChange={e => setTaxpayerName(e.target.value)} placeholder="Your name" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Social Security Number</Label>
+                <Input value={taxpayerSSN} onChange={e => setTaxpayerSSN(e.target.value)} placeholder="XXX-XX-XXXX" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Step 1: Select Properties */}
-        {currentStep === 1 && (
-          <Card className="transition-all hover:shadow-lg">
-            <CardHeader>
-              <CardTitle>Step 1: Select Properties</CardTitle>
-              <CardDescription>Choose which properties to include in Schedule E</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="relative flex-1 max-w-md">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Search properties..."
-                    className="pl-10"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-                {filteredProperties.length > 0 && (
-                  <Button variant="outline" onClick={toggleAll}>
-                    {selectedProperties.size === filteredProperties.length ? (
-                      <>
-                        <CheckSquare className="h-4 w-4 mr-2" />
-                        Deselect All
-                      </>
-                    ) : (
-                      <>
-                        <Square className="h-4 w-4 mr-2" />
-                        Select All
-                      </>
-                    )}
-                  </Button>
-                )}
+        {/* Property Selection */}
+        <Card>
+          <CardContent className="pt-5">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-base font-semibold">Select Properties</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Choose which properties to include in Schedule E</p>
               </div>
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                  <Input placeholder="Search…" className="pl-8 w-48 h-8" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                </div>
+                <Button variant="outline" size="sm" onClick={toggleAll}>
+                  {selectedIds.size === filteredProperties.length
+                    ? <><CheckSquare className="h-3.5 w-3.5 mr-1" />Deselect All</>
+                    : <><Square className="h-3.5 w-3.5 mr-1" />Select All</>}
+                </Button>
+              </div>
+            </div>
 
-              {filteredProperties.length === 0 ? (
-                <div className="text-center py-12">
-                  <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground mb-4">
-                    {searchQuery
-                      ? "No properties match your search."
-                      : "No properties found. Add properties to generate Schedule E."}
+            {filteredProperties.length === 0 ? (
+              <div className="text-center py-10">
+                <Building2 className="h-10 w-10 mx-auto text-muted-foreground mb-3 opacity-50" />
+                <p className="text-sm text-muted-foreground">No properties found.</p>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-10"></TableHead>
+                    <TableHead>Property</TableHead>
+                    <TableHead className="text-right">Annual Income</TableHead>
+                    <TableHead className="text-right">Total Expenses</TableHead>
+                    <TableHead className="text-right">Depreciation</TableHead>
+                    <TableHead className="text-right">Net Income/Loss</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredProperties.map(property => {
+                    const isSelected = selectedIds.has(property.id);
+                    const ex = getExpenses(property.id);
+                    const totalExp = calcTotalExpenses(ex.data);
+                    const net = (ex.data.rentsReceived || 0) - totalExp;
+                    return (
+                      <TableRow key={property.id} className={isSelected ? "bg-primary/5" : ""}>
+                        <TableCell><Checkbox checked={isSelected} onCheckedChange={() => toggleProperty(property.id)} /></TableCell>
+                        <TableCell className="font-medium text-sm">{property.address}</TableCell>
+                        <TableCell className="text-right text-sm">{fmt(ex.data.rentsReceived || 0)}</TableCell>
+                        <TableCell className="text-right text-sm text-destructive">{fmt(totalExp)}</TableCell>
+                        <TableCell className="text-right text-sm text-destructive">{fmt(ex.data.depreciation || 0)}</TableCell>
+                        <TableCell className={`text-right text-sm font-semibold ${net >= 0 ? "text-success" : "text-destructive"}`}>
+                          {net < 0 ? `(${fmt(Math.abs(net))})` : fmt(net)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Expense Detail per Selected Property */}
+        {selectedIds.size > 0 && (
+          <div className="space-y-3">
+            <div>
+              <h2 className="text-base font-semibold">Expense Detail</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Review and adjust Schedule E line items per property (auto-populated from property data)</p>
+            </div>
+            {Array.from(selectedIds).map(id => {
+              const prop = properties.find(p => p.id === id);
+              if (!prop) return null;
+              const ex = getExpenses(id);
+              const totalExp = calcTotalExpenses(ex.data);
+              const net = (ex.data.rentsReceived || 0) - totalExp;
+              const isExpanded = ex.expanded;
+
+              return (
+                <Card key={id}>
+                  <CardHeader className="py-3 px-5 cursor-pointer" onClick={() => toggleExpanded(id)}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <div>
+                          <p className="text-sm font-medium">{prop.address}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Income: {fmt(ex.data.rentsReceived || 0)} · Expenses: {fmt(totalExp)} · Net:&nbsp;
+                            <span className={net >= 0 ? "text-success" : "text-destructive"}>
+                              {net < 0 ? `(${fmt(Math.abs(net))})` : fmt(net)}
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+                      {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                    </div>
+                  </CardHeader>
+                  {isExpanded && (
+                    <CardContent className="pt-0 px-5 pb-5">
+                      <Separator className="mb-4" />
+                      <div className="grid gap-3 md:grid-cols-2 mb-4">
+                        <div className="space-y-1.5">
+                          <Label className="text-sm font-semibold text-success">Line 3 — Rents received (annual)</Label>
+                          <Input type="number" value={ex.data.rentsReceived || ""} onChange={e => updateExpense(id, 'rentsReceived', e.target.value)} placeholder="0" />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-sm">Property Type</Label>
+                          <select
+                            className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
+                            value={ex.data.propertyType}
+                            onChange={e => {
+                              const type = e.target.value as 'Residential' | 'Commercial';
+                              const depr = Math.round(calcDepreciation(ex.data.purchasePrice, type));
+                              updateExpense(id, 'propertyType', type);
+                              updateExpense(id, 'depreciation', depr);
+                            }}
+                          >
+                            <option value="Residential">Residential (27.5 yr)</option>
+                            <option value="Commercial">Commercial (39 yr)</option>
+                          </select>
+                        </div>
+                      </div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Expenses (Lines 5–19)</p>
+                      <div className="grid gap-3 md:grid-cols-3">
+                        {EXPENSE_FIELDS.map(f => {
+                          const isMortgage = f.key === 'mortgageInterest';
+                          const hasMortgageData = isMortgage && (ex.data.mortgageInterest || 0) > 0;
+                          return (
+                          <div key={f.key} className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">
+                              Line {f.lineNo} — {f.label}
+                              {hasMortgageData && <span className="ml-1 text-primary/70">(auto)</span>}
+                            </Label>
+                            <Input
+                              type="number"
+                              value={(ex.data[f.key] as number) || ""}
+                              onChange={e => updateExpense(id, f.key, e.target.value)}
+                              placeholder="0"
+                              disabled={f.key === 'depreciation'}
+                              className={f.key === 'depreciation' ? "bg-muted/50 text-muted-foreground" : ""}
+                            />
+                          </div>
+                          );
+                        })}
+                      </div>
+                      <div className="mt-4 p-3 rounded-lg bg-muted/40 flex gap-6 flex-wrap">
+                        <div><p className="text-xs text-muted-foreground">Total Expenses</p><p className="font-semibold text-destructive">{fmt(totalExp)}</p></div>
+                        <div><p className="text-xs text-muted-foreground">Net Income/Loss</p><p className={`font-semibold ${net >= 0 ? "text-success" : "text-destructive"}`}>{net < 0 ? `(${fmt(Math.abs(net))})` : fmt(net)}</p></div>
+                      </div>
+                    </CardContent>
+                  )}
+                </Card>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Summary */}
+        {selectedIds.size > 0 && (
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="pt-5">
+              <h2 className="text-base font-semibold mb-4">Schedule E Summary — {selectedIds.size} Propert{selectedIds.size === 1 ? 'y' : 'ies'}</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Rental Income</p>
+                  <p className="text-xl font-bold text-success">{fmt(totals.income)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Expenses</p>
+                  <p className="text-xl font-bold text-destructive">{fmt(totals.expenses)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Depreciation</p>
+                  <p className="text-xl font-bold text-destructive">{fmt(totals.depreciation)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Net Rental Income/Loss</p>
+                  <p className={`text-xl font-bold ${totals.net >= 0 ? "text-success" : "text-destructive"}`}>
+                    {totals.net < 0 ? `(${fmt(Math.abs(totals.net))})` : fmt(totals.net)}
                   </p>
                 </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12"></TableHead>
-                      <TableHead>Property Address</TableHead>
-                      <TableHead className="text-right">Annual Rental Income</TableHead>
-                      <TableHead className="text-right">Annual Expenses</TableHead>
-                      <TableHead className="text-right">Depreciation</TableHead>
-                      <TableHead className="text-right">Net Income</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredProperties.map((property) => {
-                      const isSelected = selectedProperties.has(property.id);
-                      const monthlyRentalIncome = property.monthlyRentalIncome || 0;
-                      const monthlyExpenses = property.monthlyExpenses || 0;
-                      const annualRentalIncome = monthlyRentalIncome * 12;
-                      const annualExpenses = monthlyExpenses * 12;
-                      const propertyType = "Residential"; // TODO: Get from property
-                      const depreciationPeriod = propertyType === "Residential" ? 27.5 : 39;
-                      const depreciableBasis = property.purchasePrice || 0;
-                      const landValue = depreciableBasis * 0.2;
-                      const buildingValue = depreciableBasis - landValue;
-                      const depreciation = buildingValue / depreciationPeriod;
-                      const netIncome = annualRentalIncome - annualExpenses - depreciation;
-
-                      return (
-                        <TableRow
-                          key={property.id}
-                          className={isSelected ? "bg-primary/5" : ""}
-                        >
-                          <TableCell>
-                            <Checkbox
-                              checked={isSelected}
-                              onCheckedChange={() => toggleProperty(property.id)}
-                            />
-                          </TableCell>
-                          <TableCell className="font-medium">{property.address}</TableCell>
-                          <TableCell className="text-right">{formatCurrencyDisplay(annualRentalIncome)}</TableCell>
-                          <TableCell className="text-right text-destructive">{formatCurrencyDisplay(annualExpenses)}</TableCell>
-                          <TableCell className="text-right text-destructive">{formatCurrencyDisplay(depreciation)}</TableCell>
-                          <TableCell className={`text-right font-semibold ${netIncome >= 0 ? "text-success" : "text-destructive"}`}>
-                            {formatCurrencyDisplay(netIncome)}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Step 2: Review Details */}
-        {currentStep === 2 && (
-          <Card className="transition-all hover:shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calculator className="h-5 w-5" />
-                Step 2: Review Schedule E Details
-              </CardTitle>
-              <CardDescription>
-                Review rental income, expenses, and depreciation for each property
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {selectedProperties.size === 0 ? (
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>No Properties Selected</AlertTitle>
-                  <AlertDescription>
-                    Please go back to Step 1 and select at least one property.
-                  </AlertDescription>
-                </Alert>
-              ) : (
-                <>
-                  <div>
-                    <Label className="text-sm font-semibold mb-3 block">Tax Year</Label>
-                    <Input
-                      type="number"
-                      value={taxYear}
-                      onChange={(e) => setTaxYear(parseInt(e.target.value) || 2026)}
-                      className="w-32"
-                    />
-                  </div>
-
-                  <Separator />
-
-                  <div className="bg-primary/5 border-primary/20 p-6 rounded-lg">
-                    <Label className="text-sm font-semibold mb-4 block">Schedule E Summary</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Total Rental Income</p>
-                        <p className="text-2xl font-bold">{formatCurrencyDisplay(totals.totalRentalIncome)}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Total Expenses</p>
-                        <p className="text-2xl font-bold text-destructive">{formatCurrencyDisplay(totals.totalExpenses)}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Total Depreciation</p>
-                        <p className="text-2xl font-bold text-destructive">{formatCurrencyDisplay(totals.totalDepreciation)}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Net Rental Income</p>
-                        <p className={`text-2xl font-bold ${totals.totalNetIncome >= 0 ? "text-success" : "text-destructive"}`}>
-                          {formatCurrencyDisplay(totals.totalNetIncome)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div>
-                    <Label className="text-sm font-semibold mb-3 block">Property-by-Property Breakdown</Label>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Property Address</TableHead>
-                          <TableHead className="text-right">Rental Income</TableHead>
-                          <TableHead className="text-right">Expenses</TableHead>
-                          <TableHead className="text-right">Depreciation</TableHead>
-                          <TableHead className="text-right">Net Income/Loss</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {scheduleEData.map((item) => (
-                          <TableRow key={item.property.id}>
-                            <TableCell className="font-medium">{item.propertyAddress}</TableCell>
-                            <TableCell className="text-right">{formatCurrencyDisplay(item.rentalIncome)}</TableCell>
-                            <TableCell className="text-right text-destructive">{formatCurrencyDisplay(item.expenses)}</TableCell>
-                            <TableCell className="text-right text-destructive">{formatCurrencyDisplay(item.depreciation)}</TableCell>
-                            <TableCell className={`text-right font-semibold ${item.netIncome >= 0 ? "text-success" : "text-destructive"}`}>
-                              {formatCurrencyDisplay(item.netIncome)}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                        <TableRow className="font-bold">
-                          <TableCell>Total</TableCell>
-                          <TableCell className="text-right">{formatCurrencyDisplay(totals.totalRentalIncome)}</TableCell>
-                          <TableCell className="text-right text-destructive">{formatCurrencyDisplay(totals.totalExpenses)}</TableCell>
-                          <TableCell className="text-right text-destructive">{formatCurrencyDisplay(totals.totalDepreciation)}</TableCell>
-                          <TableCell className={`text-right ${totals.totalNetIncome >= 0 ? "text-success" : "text-destructive"}`}>
-                            {formatCurrencyDisplay(totals.totalNetIncome)}
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Step 3: Generate */}
-        {currentStep === 3 && (
-          <Card className="transition-all hover:shadow-lg">
-            <CardHeader>
-              <CardTitle>Step 3: Generate Schedule E</CardTitle>
-              <CardDescription>Review summary and generate your Schedule E PDF</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {selectedProperties.size === 0 ? (
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>No Properties Selected</AlertTitle>
-                  <AlertDescription>
-                    Please go back to Step 1 and select at least one property.
-                  </AlertDescription>
-                </Alert>
-              ) : (
-                <>
-                  <div className="bg-muted/50 p-6 rounded-lg">
-                    <Label className="text-sm font-semibold mb-4 block">Final Summary</Label>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Tax Year</span>
-                        <span className="font-semibold">{taxYear}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Properties Selected</span>
-                        <Badge variant="secondary">{selectedProperties.size}</Badge>
-                      </div>
-                      <Separator />
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Total Rental Income</span>
-                        <span className="font-semibold">{formatCurrencyDisplay(totals.totalRentalIncome)}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Total Expenses</span>
-                        <span className="font-semibold text-destructive">{formatCurrencyDisplay(totals.totalExpenses)}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Total Depreciation</span>
-                        <span className="font-semibold text-destructive">{formatCurrencyDisplay(totals.totalDepreciation)}</span>
-                      </div>
-                      <Separator />
-                      <div className="flex justify-between items-center">
-                        <span className="text-lg font-semibold">Net Rental Income/Loss</span>
-                        <span className={`text-2xl font-bold ${totals.totalNetIncome >= 0 ? "text-success" : "text-destructive"}`}>
-                          {formatCurrencyDisplay(totals.totalNetIncome)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Ready to Generate</AlertTitle>
-                    <AlertDescription>
-                      Your Schedule E will include {selectedProperties.size} propert{selectedProperties.size === 1 ? 'y' : 'ies'} with a net rental {totals.totalNetIncome >= 0 ? 'income' : 'loss'} of {formatCurrencyDisplay(Math.abs(totals.totalNetIncome))}.
-                    </AlertDescription>
-                  </Alert>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Navigation Buttons */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <Button
-                variant="outline"
-                onClick={prevStep}
-                disabled={currentStep === 1}
-                className="transition-all hover:bg-accent hover:text-accent-foreground"
-              >
-                <ChevronLeft className="h-4 w-4 mr-2" />
-                Previous
-              </Button>
-              
-              <div className="text-sm text-muted-foreground">
-                Step {currentStep} of {totalSteps}
               </div>
-              
-              {currentStep < totalSteps ? (
-                <Button
-                  onClick={nextStep}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 hover:scale-105"
-                  disabled={currentStep === 1 && selectedProperties.size === 0}
-                >
-                  Next
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleGenerate}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 hover:scale-105"
-                  size="lg"
-                  disabled={selectedProperties.size === 0}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Generate Schedule E PDF
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Bottom generate button */}
+        <div className="flex justify-end pb-4">
+          <Button onClick={handleGenerate} disabled={generating || selectedIds.size === 0} size="lg" className="gap-2">
+            <Download className="h-4 w-4" />
+            {generating ? "Generating PDF…" : `Generate Schedule E (${taxYear})`}
+          </Button>
+        </div>
       </div>
     </Layout>
   );

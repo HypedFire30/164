@@ -20,7 +20,16 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ZoomIn, ZoomOut, Move, TrendingUp, DollarSign, Calendar, PieChart as PieChartIcon } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ZoomIn, ZoomOut, Move, TrendingUp, DollarSign, Calendar, PieChart as PieChartIcon, TableIcon } from "lucide-react";
 import { formatCurrency } from "@/domain/utils";
 import type { PaymentSchedule, LoanSummary } from "@/lib/calculations/loan-calculator";
 
@@ -164,10 +173,84 @@ export function MortgageCharts({
   const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev + 0.2, 2));
   const handleZoomOut = () => setZoomLevel((prev) => Math.max(prev - 0.2, 0.5));
 
+  // Build yearly amortization table for Schedule tab
+  const yearlyScheduleData = useMemo(() => {
+    const schedule = loanSummary.amortizationSchedule;
+    const map: Record<number, { year: number; startBalance: number; principal: number; interest: number; totalPaid: number; endBalance: number }> = {};
+    for (const payment of schedule) {
+      const year = Math.ceil(payment.paymentNumber / 12);
+      if (!map[year]) {
+        map[year] = {
+          year,
+          startBalance: payment.remainingBalance + payment.principalPayment,
+          principal: 0,
+          interest: 0,
+          totalPaid: 0,
+          endBalance: 0,
+        };
+      }
+      map[year].principal += payment.principalPayment;
+      map[year].interest += payment.interestPayment;
+      map[year].totalPaid += payment.totalPayment;
+      map[year].endBalance = payment.remainingBalance;
+    }
+    return Object.values(map).sort((a, b) => a.year - b.year);
+  }, [loanSummary.amortizationSchedule]);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      <Tabs defaultValue="charts">
+        <TabsList className="w-full grid grid-cols-2">
+          <TabsTrigger value="charts" className="gap-1.5">
+            <TrendingUp className="h-3.5 w-3.5" />
+            Charts
+          </TabsTrigger>
+          <TabsTrigger value="schedule" className="gap-1.5">
+            <TableIcon className="h-3.5 w-3.5" />
+            Schedule
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="schedule" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Yearly Amortization Schedule</CardTitle>
+              <CardDescription>Principal and interest breakdown per year</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Year</TableHead>
+                      <TableHead className="text-right">Starting Balance</TableHead>
+                      <TableHead className="text-right">Principal</TableHead>
+                      <TableHead className="text-right">Interest</TableHead>
+                      <TableHead className="text-right">Total Paid</TableHead>
+                      <TableHead className="text-right">Ending Balance</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {yearlyScheduleData.map((row) => (
+                      <TableRow key={row.year} className="hover:bg-muted/50 transition-colors">
+                        <TableCell className="font-medium">Year {row.year}</TableCell>
+                        <TableCell className="text-right text-sm">{formatCurrency(row.startBalance)}</TableCell>
+                        <TableCell className="text-right text-sm text-success">{formatCurrency(row.principal)}</TableCell>
+                        <TableCell className="text-right text-sm text-warning">{formatCurrency(row.interest)}</TableCell>
+                        <TableCell className="text-right text-sm">{formatCurrency(row.totalPaid)}</TableCell>
+                        <TableCell className="text-right text-sm font-medium">{formatCurrency(row.endBalance)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="charts" className="mt-4">
       {/* Chart Controls */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -416,6 +499,8 @@ export function MortgageCharts({
           </CardContent>
         </Card>
       </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

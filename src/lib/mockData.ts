@@ -48,6 +48,24 @@ export function generateMockProperties(count: number = 15): Property[] {
     const currentValue = Math.floor(purchasePrice * (1 + appreciation / 100));
     const ownershipPercentage = randomBetween(50, 100);
 
+    // Units based on value tier
+    const totalUnits = currentValue > 3000000 ? randomBetween(12, 24)
+      : currentValue > 1500000 ? randomBetween(4, 12)
+      : currentValue > 800000 ? randomBetween(2, 4)
+      : 1;
+    const occupiedUnits = Math.floor(totalUnits * (randomBetween(85, 100) / 100));
+    const avgRentPerUnit = currentValue > 2000000 ? randomBetween(1200, 2000)
+      : currentValue > 1000000 ? randomBetween(1500, 2800)
+      : randomBetween(1800, 3500);
+    const monthlyRentalIncome = occupiedUnits * avgRentPerUnit;
+
+    // Operating expenses (realistic breakdown)
+    const monthlyPropertyTax = Math.round((currentValue * 0.014) / 12 / 100) * 100;
+    const monthlyInsurance = Math.round((currentValue * 0.005) / 12 / 50) * 50;
+    const monthlyMaintenance = Math.round(monthlyRentalIncome * randomBetween(5, 10) / 100 / 50) * 50;
+    const monthlyPropertyManagement = totalUnits > 1 ? Math.round(monthlyRentalIncome * 0.08 / 50) * 50 : 0;
+    const monthlyHOA = index % 4 === 0 ? randomBetween(200, 600) : 0;
+
     return {
       id: `prop_${index + 1}`,
       address,
@@ -56,6 +74,16 @@ export function generateMockProperties(count: number = 15): Property[] {
       ownershipPercentage,
       mortgageId: `mort_${index + 1}`,
       notes: index % 3 === 0 ? "Recently renovated" : undefined,
+      totalUnits,
+      occupiedUnits,
+      monthlyRentalIncome,
+      monthlyPropertyTax,
+      monthlyInsurance,
+      monthlyMaintenance,
+      monthlyPropertyManagement,
+      monthlyHOA,
+      monthlyUtilities: 0,
+      monthlyOtherExpenses: 0,
     };
   });
 }

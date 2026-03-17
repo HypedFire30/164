@@ -1,4 +1,12 @@
 import { useState, useMemo } from "react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import {
@@ -165,6 +173,40 @@ export default function Assets() {
     });
   }, [liabilities, liabilitySearch, liabilitySort]);
 
+  // Asset allocation by category
+  const ASSET_COLORS = [
+    "hsl(217 91% 50%)",
+    "hsl(142.1 76.2% 36.3%)",
+    "hsl(38 92% 50%)",
+    "hsl(280 87% 55%)",
+    "hsl(0 84% 60%)",
+    "hsl(190 80% 45%)",
+    "hsl(320 80% 55%)",
+  ];
+
+  const allocationData = useMemo(() => {
+    const byCategory: Record<string, number> = {};
+    personalAssets.forEach((a) => {
+      const cat = a.category || "Other";
+      byCategory[cat] = (byCategory[cat] || 0) + a.value;
+    });
+    return Object.entries(byCategory)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+  }, [personalAssets]);
+
+  const liquidAssets = useMemo(
+    () =>
+      personalAssets
+        .filter(
+          (a) =>
+            a.category === "Cash" || a.category === "Cash Other Institutions"
+        )
+        .reduce((s, a) => s + a.value, 0),
+    [personalAssets]
+  );
+  const illiquidAssets = totals.totalPersonalAssets - liquidAssets;
+
   const handleAddAsset = () => {
     setEditingAsset(null);
     setEditingLiability(null);
@@ -282,6 +324,88 @@ export default function Assets() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Asset Allocation Chart */}
+        {allocationData.length > 0 && (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <DollarSign className="h-4 w-4" />
+                Asset Allocation
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Personal assets by category
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col md:flex-row items-center gap-4">
+                <ResponsiveContainer width="100%" height={180}>
+                  <PieChart>
+                    <Pie
+                      data={allocationData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={50}
+                      outerRadius={80}
+                      paddingAngle={2}
+                      dataKey="value"
+                    >
+                      {allocationData.map((_, i) => (
+                        <Cell
+                          key={i}
+                          fill={ASSET_COLORS[i % ASSET_COLORS.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <RechartsTooltip
+                      formatter={(value: number) => [
+                        formatCurrencyDisplay(value),
+                        "Value",
+                      ]}
+                      contentStyle={{
+                        borderRadius: "8px",
+                        border: "1px solid hsl(var(--border))",
+                        fontSize: "11px",
+                        background: "hsl(var(--card))",
+                        color: "hsl(var(--foreground))",
+                      }}
+                    />
+                    <Legend
+                      iconSize={8}
+                      iconType="circle"
+                      wrapperStyle={{ fontSize: "11px" }}
+                      formatter={(value) => (
+                        <span className="text-muted-foreground">{value}</span>
+                      )}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+
+                {/* Liquidity split */}
+                <div className="flex md:flex-col gap-4 md:gap-3 shrink-0">
+                  <div className="text-center md:text-left">
+                    <p className="text-xs text-muted-foreground">Liquid</p>
+                    <p className="text-base font-bold text-success">
+                      {formatCurrencyDisplay(liquidAssets)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Cash & equivalents
+                    </p>
+                  </div>
+                  <div className="text-center md:text-left">
+                    <p className="text-xs text-muted-foreground">Illiquid</p>
+                    <p className="text-base font-bold">
+                      {formatCurrencyDisplay(illiquidAssets)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Other assets
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Two Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

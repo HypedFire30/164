@@ -2,7 +2,15 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
+import { ErrorBoundary } from "react-error-boundary";
+import { AuthProvider } from "@/context/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { PageTransition } from "@/components/PageTransition";
+import { Navbar } from "@/components/Layout";
+
+import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Properties from "./pages/Properties";
 import PropertiesTable from "./pages/PropertiesTable";
@@ -18,8 +26,8 @@ import Documents from "./pages/Documents";
 import GenerateRentRoll from "./pages/GenerateRentRoll";
 import GenerateW2 from "./pages/GenerateW2";
 import GenerateScheduleE from "./pages/GenerateScheduleE";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
-import { ErrorBoundary } from "react-error-boundary";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,37 +41,79 @@ const queryClient = new QueryClient({
 function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="max-w-md w-full bg-card border border-border rounded-lg p-6">
+      <div className="max-w-md w-full bg-card border border-border rounded-2xl p-8 shadow-xl">
         <h1 className="text-2xl font-bold text-destructive mb-4">Something went wrong</h1>
-        <pre className="text-sm text-muted-foreground overflow-auto mb-4 p-4 bg-muted rounded">
+        <pre className="text-sm text-muted-foreground overflow-auto mb-6 p-4 bg-muted rounded-xl">
           {error.message}
-          {error.stack && (
-            <details className="mt-2">
-              <summary className="cursor-pointer">Stack trace</summary>
-              <pre className="mt-2 text-xs">{error.stack}</pre>
-            </details>
-          )}
         </pre>
-        <button
-          onClick={resetErrorBoundary}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 mr-2"
-        >
-          Try Again
-        </button>
-        <button
-          onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90"
-        >
-          Reload Page
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={resetErrorBoundary}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors"
+          >
+            Try Again
+          </button>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-secondary text-secondary-foreground rounded-xl text-sm font-medium hover:bg-secondary/80 transition-colors"
+          >
+            Reload
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
+function P({ children }: { children: React.ReactNode }) {
+  return (
+    <ProtectedRoute>
+      <PageTransition>{children}</PageTransition>
+    </ProtectedRoute>
+  );
+}
+
+function AnimatedRoutes() {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      <Routes location={location} key={location.pathname}>
+        {/* Public */}
+        <Route
+          path="/login"
+          element={
+            <PageTransition>
+              <Login />
+            </PageTransition>
+          }
+        />
+
+        {/* Protected */}
+        <Route path="/" element={<P><Dashboard /></P>} />
+        <Route path="/dashboard" element={<P><Dashboard /></P>} />
+        <Route path="/properties" element={<P><PropertiesTable /></P>} />
+        <Route path="/properties/cards" element={<P><Properties /></P>} />
+        <Route path="/properties/:id" element={<P><PropertyDetail /></P>} />
+        <Route path="/assets" element={<P><Assets /></P>} />
+        <Route path="/assets/asset/:id" element={<P><AssetDetail /></P>} />
+        <Route path="/assets/liability/:id" element={<P><LiabilityDetail /></P>} />
+        <Route path="/business" element={<P><Business /></P>} />
+        <Route path="/personal" element={<P><Personal /></P>} />
+        <Route path="/personal/assets" element={<P><Assets /></P>} />
+        <Route path="/documents" element={<P><Documents /></P>} />
+        <Route path="/documents/rent-roll" element={<P><GenerateRentRoll /></P>} />
+        <Route path="/documents/w2" element={<P><GenerateW2 /></P>} />
+        <Route path="/documents/schedule-e" element={<P><GenerateScheduleE /></P>} />
+        <Route path="/generate" element={<P><GeneratePFS /></P>} />
+        <Route path="/snapshots" element={<P><Snapshots /></P>} />
+        <Route path="/settings" element={<P><Settings /></P>} />
+        <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+      </Routes>
+    </AnimatePresence>
+  );
+}
+
 const App = () => {
-  console.log("App component rendering...");
-  
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <QueryClientProvider client={queryClient}>
@@ -71,29 +121,10 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/properties" element={<PropertiesTable />} />
-              <Route path="/properties/cards" element={<Properties />} />
-              <Route path="/properties/:id" element={<PropertyDetail />} />
-              <Route path="/assets" element={<Assets />} />
-              <Route path="/assets/asset/:id" element={<AssetDetail />} />
-              <Route path="/assets/liability/:id" element={<LiabilityDetail />} />
-              <Route path="/business" element={<Business />} />
-              <Route path="/personal" element={<Personal />} />
-              <Route path="/personal/assets" element={<Assets />} />
-              <Route path="/assets" element={<Assets />} />
-              <Route path="/assets/asset/:id" element={<AssetDetail />} />
-              <Route path="/assets/liability/:id" element={<LiabilityDetail />} />
-              <Route path="/documents" element={<Documents />} />
-              <Route path="/documents/rent-roll" element={<GenerateRentRoll />} />
-              <Route path="/documents/w2" element={<GenerateW2 />} />
-              <Route path="/documents/schedule-e" element={<GenerateScheduleE />} />
-              <Route path="/generate" element={<GeneratePFS />} />
-              <Route path="/snapshots" element={<Snapshots />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <AuthProvider>
+              <Navbar />
+              <AnimatedRoutes />
+            </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>
       </QueryClientProvider>

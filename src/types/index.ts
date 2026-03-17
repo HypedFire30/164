@@ -13,6 +13,14 @@ export interface Property {
   occupiedUnits?: number | null;
   monthlyRentalIncome?: number | null; // Total monthly rental income
   occupancyRate?: number | null; // Percentage (0-100)
+  // Monthly operating expenses (for NOI / cap rate / DSCR calculations)
+  monthlyPropertyTax?: number | null;
+  monthlyInsurance?: number | null;
+  monthlyHOA?: number | null;
+  monthlyMaintenance?: number | null;
+  monthlyPropertyManagement?: number | null;
+  monthlyUtilities?: number | null;
+  monthlyOtherExpenses?: number | null;
   // Schedule E fields (Contracts and Mortgages Receivable)
   scheduleEDebtorName?: string; // Name of Debtor
   scheduleEPaymentSchedule?: string; // e.g., "Monthly", "Quarterly"
